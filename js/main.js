@@ -1,1 +1,1 @@
-var app = require( './hogan.js' );
+var app = require( './app/hogan.js' );

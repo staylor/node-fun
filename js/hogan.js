@@ -1,1 +1,0 @@
-document.getElementById( 'hogan' ).innerHTML = HoganTemplates.index({name: 'Balls' });

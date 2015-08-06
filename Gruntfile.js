@@ -1,15 +1,54 @@
 module.exports = function(grunt) {
 
+	var autoprefixer = require('autoprefixer-core');
+
 	require('matchdep').filterDev(['grunt-*']).forEach( grunt.loadNpmTasks );
 
 	grunt.initConfig({
-		clean: {
-			all: ['static/**/*.js']
+		postcss: {
+			options: {
+				processors: [
+					autoprefixer({
+						browsers: ['Android >= 2.1', 'Chrome >= 21', 'Explorer >= 7', 'Firefox >= 17', 'Opera >= 12.1', 'Safari >= 6.0'],
+						cascade: false
+					})
+				]
+			},
+			all: {
+				expand: true,
+				cwd: 'static/css',
+				dest: 'static/css',
+				src: ['**/*.css']
+			}
 		},
+
+		sass: {
+			all: {
+				expand: true,
+				cwd: 'scss',
+				dest: 'static/css',
+				ext: '.css',
+				src: ['**/*.scss'],
+				options: {
+					outputStyle: 'expanded'
+				}
+			}
+		},
+
+		cssmin: {
+			static: {
+				expand: true,
+				cwd: 'static/css',
+				dest: 'static/css',
+				ext: '.min.css',
+				src: ['**/*.css']
+			}
+		},
+
 		hogan: {
 			HoganTemplates: {
 				src: './templates/*.mustache',
-				dest: './static/templates.js',
+				dest: './static/templates/compiled.js',
 				options: {
 					binderName: 'revealing'
 				}
@@ -18,39 +57,72 @@ module.exports = function(grunt) {
 		jshint: {
 			files: [
 				'Gruntfile.js',
-				'main.js',
-				'js/**/*.js'
+				'js/**/*.js',
+				'!js/lib/**/*.js'
 			],
 			options: {
-				globals: {
-					jQuery: true
-				}
+				globals: {}
 			}
 		},
+
 		browserify: {
 			main: {
 				files : {
-					'static/build.js' : ['./js/main.js']
+					'static/js/build.js' : ['js/main.js']
 				}
 			}
 		},
 		uglify: {
-			main: {
+			js: {
 				expand: true,
-				cwd: 'static',
+				cwd: 'static/js',
+				dest: 'static/js',
 				ext: '.min.js',
-				src: ['**/*.js'],
-				dest: 'static'
+				src: ['**/*.js']
+			},
+			lib: {
+				expand: true,
+				cwd: 'js/lib',
+				dest: 'static/lib',
+				ext: '.min.js',
+				extDot: 'last',
+				src: ['**/*.js']
+			},
+			templates: {
+				expand: true,
+				cwd: 'static/templates',
+				dest: 'static/templates',
+				ext: '.min.js',
+				src: ['**/*.js']
 			}
 		},
+
+		clean: {
+			js: ['static/js/**/*.js'],
+			lib: ['static/lib/**/*.js'],
+			css: ['static/css/**/*.css'],
+			templates: ['static/templates/**/*.js']
+		},
+
 		watch: {
 			templates: {
 				files: ['<%= hogan.HoganTemplates.src %>'],
-				tasks: ['hogan', 'browserify', 'uglify']
+				tasks: ['clean:templates', 'hogan', 'uglify:templates']
 			},
-			all: {
+
+			js: {
 				files: ['<%= jshint.files %>'],
-				tasks: ['clean', 'jshint', 'hogan', 'browserify', 'uglify']
+				tasks: ['clean:js', 'jshint', 'browserify', 'uglify:js']
+			},
+
+			lib: {
+				files: ['js/lib/**/*.js'],
+				tasks: ['clean:lib', 'uglify:lib']
+			},
+
+			scss: {
+				files: ['scss/**/*.scss'],
+				tasks: ['clean:css', 'sass', 'postcss', 'cssmin']
 			}
 		}
 	});

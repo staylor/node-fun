@@ -1,0 +1,1 @@
+document.getElementById( 'hogan' ).innerHTML = HoganTemplates.index({name: 'ON THE FLY' });
