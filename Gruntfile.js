@@ -47,9 +47,7 @@ module.exports = function(grunt) {
 
 		hogan: {
 			HoganTemplates: {
-				expand: true,
-				cwd: 'templates',
-				src: ['*.mustache', '!layout.mustache'],
+				src: ['templates/*.mustache', '!templates/layout.mustache'],
 				dest: 'static/templates/compiled.js',
 				options: {
 					binderName: 'revealing'
@@ -84,7 +82,7 @@ module.exports = function(grunt) {
 				ext: '.min.js',
 				src: ['**/*.js']
 			},
-			
+
 			lib: {
 				expand: true,
 				cwd: 'js/lib',
@@ -116,7 +114,7 @@ module.exports = function(grunt) {
 			},
 
 			templates: {
-				files: ['<%= hogan.HoganTemplates.src %>'],
+				files: ['templates/*'],
 				tasks: ['clean:templates', 'hogan', 'uglify:templates']
 			},
 

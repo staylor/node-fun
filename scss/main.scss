@@ -3,14 +3,17 @@ body {
 	font-family: sans-serif;
 }
 
-::selection {
-	background: red;
-}
-
 h1 {
 	letter-spacing: 1px;
 	text-shadow: -1px 0 deeppink;
 	outline: #fff;
+}
+
+#search-field {
+	border: 1px solid #ddd;
+	padding: 10px;
+	font-size: 14px;
+	line-height: 1;
 }
 
 ul {
