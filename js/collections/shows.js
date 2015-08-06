@@ -3,7 +3,7 @@ var Backbone = require('backbone'),
 
 Shows = Backbone.Collection.extend({
 	url: function () {
-		return '/bands/' + encodeURIComponent( this.artist );
+		return '/data/shows?' + encodeURIComponent( this.artist );
 	}
 });
 

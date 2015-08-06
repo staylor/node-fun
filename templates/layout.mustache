@@ -4,12 +4,11 @@
 <meta charset="utf-8"/>
 <title>Fuckin' with Node</title>
 <link rel="stylesheet" type="text/css" href="/static/css/main.min.css"/>
+{{{yield-styles}}}
 </head>
 <body>
 {{{ yield }}}
 
-<script src="/static/lib/hogan-3.0.1.min.js"></script>
-<script src="/static/templates/compiled.min.js"></script>
-<script src="/static/js/build.min.js"></script>
+{{{yield-scripts}}}
 </body>
 </html>

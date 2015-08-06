@@ -1,23 +1,24 @@
 var $ = require( 'jquery' ),
 	_ = require( 'underscore' ),
-	Backbone = require( 'backbone' );
+	Backbone = require( 'backbone' ),
+	SearchView,
+	ShowsCollection = require( './collections/shows' );
 
 Backbone.$ = $;
 
-View = Backbone.View.extend({
+SearchView = Backbone.View.extend({
 	events: {
 		'keyup': 'debouncedSearch'
 	},
 
 	debouncedSearch: _.debounce( function () {
-		$.ajax({
-			url: '/data/shows',
-			data: {
-				artist: this.el.value
-			},
-			context: this
-		}).done( thos/ );
+		this.artist = this.el.value;
+		console.log( this.artist );
 	}, 600 )
 
+});
 
+new SearchView({
+	el: $('#search-field'),
+	collection: new ShowsCollection()
 });
