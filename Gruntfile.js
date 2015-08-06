@@ -47,13 +47,16 @@ module.exports = function(grunt) {
 
 		hogan: {
 			HoganTemplates: {
-				src: './templates/*.mustache',
-				dest: './static/templates/compiled.js',
+				expand: true,
+				cwd: 'templates',
+				src: ['*.mustache', '!layout.mustache'],
+				dest: 'static/templates/compiled.js',
 				options: {
 					binderName: 'revealing'
 				}
 			}
 		},
+
 		jshint: {
 			files: [
 				'Gruntfile.js',
@@ -72,6 +75,7 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+
 		uglify: {
 			js: {
 				expand: true,
@@ -80,6 +84,7 @@ module.exports = function(grunt) {
 				ext: '.min.js',
 				src: ['**/*.js']
 			},
+			
 			lib: {
 				expand: true,
 				cwd: 'js/lib',
@@ -88,6 +93,7 @@ module.exports = function(grunt) {
 				extDot: 'last',
 				src: ['**/*.js']
 			},
+
 			templates: {
 				expand: true,
 				cwd: 'static/templates',
@@ -105,13 +111,17 @@ module.exports = function(grunt) {
 		},
 
 		watch: {
+			config: {
+				files: 'Gruntfile.js'
+			},
+
 			templates: {
 				files: ['<%= hogan.HoganTemplates.src %>'],
 				tasks: ['clean:templates', 'hogan', 'uglify:templates']
 			},
 
 			js: {
-				files: ['<%= jshint.files %>'],
+				files: ['<%= jshint.files %>', '!Gruntfile.js'],
 				tasks: ['clean:js', 'jshint', 'browserify', 'uglify:js']
 			},
 
