@@ -1,18 +1,20 @@
 var $ = require('jquery'),
 	_ = require('underscore'),
 	Backbone = require('backbone'),
-	BandsInTownView,
-	ShowsCollection = require( '../collections/shows.js' ),
+	View,
+	Collection = require( '../collections/shows.js' ),
 	ShowView = require( './show.js' );
 
 Backbone.$ = $;
 
-BandsInTownView = Backbone.View.extend({
+View = Backbone.View.extend({
 	id: 'bands-in-town',
 
 	initialize: function () {
 		this.dfd = false;
-		this.shows = new ShowsCollection();
+		this.shows = new Collection();
+		this.views = [];
+
 		this.listenTo( this.shows, 'request', this.setLoadingTitle );
 		this.listenTo( this.shows, 'reset', this.loadShows );
 	},
@@ -26,10 +28,9 @@ BandsInTownView = Backbone.View.extend({
 	},
 
 	renderShow: function (model) {
-		var show = new ShowView({
+		return new ShowView({
 			model: model
-		});
-		return show.render().el;
+		}).render();
 	},
 
 	reset: function () {
@@ -38,9 +39,11 @@ BandsInTownView = Backbone.View.extend({
 	},
 
 	loadShows: function () {
-		var shows = this.shows.map( this.renderShow, this );
+		_.invoke( this.views, 'remove' );
+
+		this.views = this.shows.map( this.renderShow, this );
 		this.title.html( this.shows.artist );
-		this.list.html( shows );
+		this.list.html( _.pluck( this.views, 'el' ) );
 	},
 
 	getShows: _.debounce(function () {
@@ -48,7 +51,7 @@ BandsInTownView = Backbone.View.extend({
 			return;
 		}
 
-		this.shows.artist = this.input.val();
+		this.shows.artist = this.$( 'input' ).val();
 		if ( ! this.shows.artist ) {
 			this.reset();
 			return;
@@ -60,11 +63,10 @@ BandsInTownView = Backbone.View.extend({
 	render: function () {
 		this.$el.html( '<h1>Search</h1><p><input /></p><ul></ul>' );
 		this.title = this.$( 'h1' );
-		this.input = this.$( 'input' );
 		this.list = this.$( 'ul' );
 
 		return this;
 	}
 });
 
-module.exports = BandsInTownView;
+module.exports = View;

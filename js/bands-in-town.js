@@ -1,10 +1,11 @@
 var _ = require('underscore'),
-	ApiMixin = require( '../app/api-mixin.js' ),
+	ApiMixin = require( './api-mixin.js' ),
 	app_id = 'scott_node_test',
 	baseUri = 'http://api.bandsintown.com',
 	BandsInTown;
 
 BandsInTown = function () {
+
 	var api = {
 		getArtistEvents: function (artist, res) {
 			var requestUri = this.format(
