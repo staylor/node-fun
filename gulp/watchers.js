@@ -1,15 +1,6 @@
 var gulp = require( 'gulp' );
 
-// SCSS
-gulp.task( 'scss-pipeline', require( './gulp/scss' ) );
-
-// JS
-gulp.task( 'js-pipeline', require( './gulp/js' ) );
-
-// Hogan/Mustache templates
-gulp.task( 'template-pipeline', require( './gulp/templates' ) );
-
-gulp.task( 'default', function () {
+module.exports = function () {
 	var watchers = [
 		gulp.watch( [ './scss/**/*.scss' ], [ 'scss-pipeline' ] ),
 		gulp.watch(
@@ -34,5 +25,4 @@ gulp.task( 'default', function () {
 			console.log( 'File ' + event.path + ' was ' + event.type + ', running tasks...' );
 		});
 	} );
-
-} );
+};
