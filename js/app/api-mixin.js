@@ -1,5 +1,6 @@
 
-var http = require('http'),
+var _ = require( 'underscore' ),
+	request = require( 'request' ),
 	ApiMixin;
 
 ApiMixin = {
@@ -13,18 +14,23 @@ ApiMixin = {
 		return s;
 	},
 
-	getJSON: function (requestUri, callback) {
-		http.get( requestUri, function ( apiRes ) {
-			var response = '';
+	getClient: function () {
+		return request;
+	},
 
-			apiRes.on( 'data', function ( data ) {
-				response += data;
-			});
+	getAsync: function (requestUri, callback) {
+		var client = this.getClient(),
+			boundCallback = _.bind( callback, this );
 
-			apiRes.on( 'end', function () {
-				callback( response );
-			});
-		});
+		client( requestUri, function ( err, response, body ) {
+			var data = body;
+
+			if ( 0 === response.headers['content-type'].indexOf( 'application/json' ) ) {
+				data = JSON.parse( body );
+			}
+
+			boundCallback( data );
+		} );
 	}
 };
 

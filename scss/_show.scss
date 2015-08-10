@@ -1,5 +1,17 @@
 
 li {
+	&:after {
+		display: block;
+		clear: both;
+		content: ' ';
+	}
+
+	img {
+		display: block;
+		float: left;
+		margin-right: 20px;
+	}
+
 	time {
 		font-size: 11px;
 	}

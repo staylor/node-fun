@@ -1,72 +1,90 @@
 var _ = require('underscore'),
-	ApiMixin = require( './api-mixin' ),
 	async = require( 'async' ),
-	http = require( 'http' ),
+
+	ApiMixin = require( './api-mixin' ),
+	Spotify = require( './spotify' ),
+
 	app_id = 'scott_node_test',
 	baseUri = 'http://api.bandsintown.com',
-	BandsInTown = function () {};
+	api = {},
+	BandsInTown;
 
-BandsInTown.prototype.getArtistEvents = function (artist, res) {
-	var self = this,
-		requestUri = this.format(
-			'{0}/artists/{1}/events.json?app_id={2}',
-			baseUri,
-			encodeURIComponent(artist),
-			encodeURIComponent(app_id)
-		);
+BandsInTown = function () {};
 
-	this.getJSON( requestUri, function ( response ) {
-		var calls = [],
-			urls = {},
+api = {
+	eventsCallback: function ( response ) {
+		var res = this.response,
+			calls = [],
+			names = {},
 			waiting = {},
 			stack = {},
-			parsed = JSON.parse( response );
+			spotify = new Spotify();
 
-		_.each( parsed, function ( data ) {
-			var url = self.format(
-				'http://musicbrainz.org/ws/2/artist/{0}?inc=url-rels&fmt=json',
-				data.artists[0].mbid
-			);
+		_.each( response, function ( data ) {
+			var artists = _.pluck( data.artists, 'name' ),
+				asyncArtists,
+				diff;
 
 			stack[ data.id ] = data;
+			waiting[ data.id ] = artists;
 
-			if ( urls[ url ] ) {
-				waiting[ data.id ] = url;
+			asyncArtists = _.keys( names );
+			diff = _.difference( artists, asyncArtists );
+
+			if ( ! diff.length ) {
 				return;
 			}
 
-			urls[ url ] = true;
+			_.each( diff, function ( artist ) {
+				names[ artist ] = true;
 
-			calls.push( function ( callback ) {
-				http.get( url, function ( resp ) {
-					var response = '';
+				calls.push( function ( callback ) {
+					spotify.search( artist, function ( resp ) {
+						var best;
+						if ( ! resp.artists || ! resp.artists.items.length ) {
+							callback( false );
+						}
 
-					resp.on( 'data', function ( data ) {
-						response += data;
-					});
+						best = _.max( resp.artists.items, function ( artist ) {
+							return artist.followers.total;
+						} );
 
-					resp.on( 'end', function () {
-						parsed = JSON.parse( response );
+						names[ artist ] = best;
 
-						urls[ url ] = parsed;
-						stack[ data.id ].related = parsed;
 						callback( true );
-					});
+					} );
 				} );
 			} );
 
-		}, self );
+		}, this );
 
 		async.parallel( calls, function ( err ) {
-			_.each( waiting, function ( value, key ) {
-				stack[ key ].related = urls[ value ];
+			_.each( waiting, function ( artists, key ) {
+				stack[ key ].related = [];
+				_.each( artists, function ( artist ) {
+					stack[ key ].related.push( names[ artist ] );
+				} );
 			} );
 
 			res.json( _.values( stack ) );
 		} );
-	} );
+	},
+
+	getArtistEvents : function (artist, res) {
+		var requestUri = this.format(
+				'{0}/artists/{1}/events.json?app_id={2}',
+				baseUri,
+				encodeURIComponent(artist),
+				encodeURIComponent(app_id)
+			);
+
+		this.artist = artist;
+		this.response = res;
+		this.getAsync( requestUri, this.eventsCallback );
+	}
 };
 
 _.extend( BandsInTown.prototype, ApiMixin );
+_.extend( BandsInTown.prototype, api );
 
 module.exports = BandsInTown;

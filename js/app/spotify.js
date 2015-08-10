@@ -5,25 +5,40 @@
 
 var _ = require( 'underscore' ),
 	request = require( 'request' ),
-	base = 'https://api.spotify.com',
-	searchUri = '/v1/search?type=artist&q=',
-	artistUri = '/v1/artists/{0}',
+	ApiMixin = require( './api-mixin' ),
 
-	Spotify = function () {};
+	artistUri = '/artists/{0}',
 
-_.extend( Spotify.prototype, {
+	Spotify,
+	api;
+
+Spotify = function () {
+
+};
+
+api = {
+	getClient: function () {
+		if ( ! this.client ) {
+			this.client = request.defaults({
+				baseUrl: 'https://api.spotify.com/v1'
+			});
+		}
+
+		return this.client;
+	},
+
 	search: function ( artist, callback ) {
-		var url = searchUri + encodeURIComponent( artist );
-		request( url, function ( err, resp, body ) {
-			var parsed = JSON.parse( body );
-			if ( ! parsed || ! parsed.items ) {
-				callback();
-				return;
+		this.getAsync( {
+			url: '/search',
+			qs: {
+				type: 'artist',
+				q: artist
 			}
-
-			callback( parsed.items );
-		} );
+		}, callback );
 	}
-} );
+};
+
+_.extend( Spotify.prototype, ApiMixin );
+_.extend( Spotify.prototype, api );
 
 module.exports = Spotify;

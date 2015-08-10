@@ -7,7 +7,7 @@ var Backbone = require( 'backbone' ),
 ShowView = Backbone.View.extend({
 	tagName: 'li',
 	render: function () {
-		var html = templates.show( this.model );
+		var html = templates.show.render( this.model );
 
 		this.$el.html( html );
 

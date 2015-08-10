@@ -17,18 +17,24 @@ Show = Backbone.Model.extend({
 		return this.get( 'venue' );
 	},
 
-	image: function () {
+	images: function () {
+		var images = [];
+
 		if ( ! this.get( 'related' ) ) {
 			return;
 		}
 
-		var related = this.get( 'related' ).relations,
-			image;
+		_.each( this.get( 'related' ), function ( artist ) {
+			var found = _.find( artist.images, function ( image ) {
+				return image.height > 100 && image.height < 300;
+			} );
 
-		image = _.findWhere( related, { type: 'image' } );
-		if ( image ) {
-			return image.url.resource;
-		}
+			if ( found ) {
+				images.push( found );
+			}
+		} );
+
+		return images;
 	}
 });
 
