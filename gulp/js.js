@@ -2,24 +2,27 @@ var gulp = require( 'gulp' ),
 	rename = require( 'gulp-rename' ),
 	source = require( 'vinyl-source-stream' ),
 	streamify = require( 'gulp-streamify' ),
+	uglify = require( 'gulp-uglify' ),
 
 	jshint = require( 'gulp-jshint' ),
 	browserify = require( 'browserify' );
 
 module.exports = function () {
-	var DEST = '../build/js',
+	var DEST = './build/js',
 		bundleStream;
 
 	gulp.src( [
-			'../js/**/*.js',
-			'!../js/lib/**/*.js'
+			'js/**/*.js',
+			'!js/lib/**/*.js',
+			'!js/gulp/**/*.js',
+			'!js/templates/**/*.js'
 		] )
 		.pipe( jshint() )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
 		.pipe( jshint.reporter( 'fail' ) );
 
 	bundleStream = browserify( [
-		'../js/main.js'
+		'./js/main.js'
 	] ).bundle();
 
 	return bundleStream

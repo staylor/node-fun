@@ -25,7 +25,7 @@
     "css-mqpacker": "^3.1.0",
     "csswring": "^3.0.5",
     "gulp": "^3.9.0",
-    "gulp-hogan": "^1.2.0",
+    "gulp-hogan-compile": "^0.4.1",
     "gulp-jshint": "^1.11.2",
     "gulp-postcss": "^5.1.10",
     "gulp-rename": "^1.2.2",

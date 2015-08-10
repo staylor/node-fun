@@ -1,13 +1,18 @@
 var gulp = require( 'gulp' ),
-	hogan = require( 'gulp-hogan' );
+	rename = require( 'gulp-rename' ),
+	uglify = require( 'gulp-uglify' ),
+	hogan = require( 'gulp-hogan-compile' );
 
 module.exports = function () {
-	var DEST = '../static/templates';
+	var DEST = './js/templates';
 
 	return gulp.src( [
-		'../templates/*.mustache',
-		'!../templates/layout.mustache'
+		'./templates/*.mustache',
+		'!./templates/layout.mustache'
 	] )
-		.pipe( hogan() )
+		.pipe( hogan( 'compiled.js', {
+			wrapper: 'commonjs',
+			hoganModule: 'hogan.js'
+		} ) )
 		.pipe( gulp.dest( DEST ) );
 };

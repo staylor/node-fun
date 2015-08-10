@@ -11,7 +11,6 @@ ShowsView = Backbone.View.extend({
 	},
 
 	renderShow: function ( model ) {
-		console.log( model.attributes );
 		return new ShowView({
 			model: model
 		}).render();

@@ -24,9 +24,9 @@ var gulp = require( 'gulp' ),
 	];
 
 module.exports = function () {
-	var DEST = '../static/css';
+	var DEST = './build/css';
 
-	return gulp.src( [ '../scss/**/*.scss' ] )
+	return gulp.src( [ './scss/**/*.scss' ] )
 		.pipe(
 			sass({
 				outputStyle: 'expanded'
