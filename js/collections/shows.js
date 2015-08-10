@@ -1,9 +1,11 @@
-var Backbone = require('backbone'),
+var Backbone = require( 'backbone' ),
+	Show = require( '../models/show' ),
 	Shows;
 
 Shows = Backbone.Collection.extend({
+	model: Show,
 	url: function () {
-		return '/data/shows?' + encodeURIComponent( this.artist );
+		return '/data/shows?artist=' + encodeURIComponent( this.artist );
 	}
 });
 

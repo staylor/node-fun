@@ -13,17 +13,16 @@ ApiMixin = {
 		return s;
 	},
 
-	sendJson: function (requestUri, res) {
-		http.get(requestUri, function(apiRes) {
+	getJSON: function (requestUri, callback) {
+		http.get( requestUri, function ( apiRes ) {
 			var response = '';
 
-			apiRes.on('data', function(data) {
+			apiRes.on( 'data', function ( data ) {
 				response += data;
 			});
 
-			apiRes.on('end', function() {
-				res.set('Content-Type', 'application/json');
-				res.send(response);
+			apiRes.on( 'end', function () {
+				callback( response );
 			});
 		});
 	}

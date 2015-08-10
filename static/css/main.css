@@ -26,3 +26,22 @@ li {
   margin: 0;
   border-bottom: 1px solid #eee;
 }
+
+li time {
+  font-size: 11px;
+}
+
+li h4 {
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+li p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 14px;
+}
+
+li p strong {
+  display: block;
+}

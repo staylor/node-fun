@@ -1,18 +1,17 @@
-var $ = require('jquery'),
-	_ = require('underscore'),
-	Backbone = require('backbone'),
-	Show;
+/*globals HoganTemplates */
 
-Backbone.$ = $;
+var Backbone = require( 'backbone' ),
+	ShowView;
 
-Show = Backbone.View.extend({
+ShowView = Backbone.View.extend({
 	tagName: 'li',
-	template: _.template( $( '#tmpl-show-view' ).html() ),
-
 	render: function () {
-		this.$el.html( this.template( this.model.toJSON() ) );
+		var html = HoganTemplates.show( this.model );
+
+		this.$el.html( html );
+
 		return this;
 	}
 });
 
-module.exports = Show;
+module.exports = ShowView;
