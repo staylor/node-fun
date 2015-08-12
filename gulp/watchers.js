@@ -2,7 +2,10 @@ var gulp = require( 'gulp' );
 
 module.exports = function () {
 	var watchers = [
-		gulp.watch( [ './scss/**/*.scss' ], [ 'scss-pipeline' ] ),
+		gulp.watch(
+			[ './scss/**/*.scss' ],
+			[ 'scss-pipeline' ]
+		),
 		gulp.watch(
 			[
 				'js/**/*.js',

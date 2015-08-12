@@ -1,4 +1,5 @@
 var gulp = require( 'gulp' ),
+	gutil = require( 'gulp-util' ),
 	rename = require( 'gulp-rename' ),
 
 	postcss = require('gulp-postcss'),
@@ -26,6 +27,8 @@ var gulp = require( 'gulp' ),
 module.exports = function () {
 	var DEST = './build/css';
 
+	gutil.log( 'Compiling SCSS templates ...' );
+
 	return gulp.src( [ './scss/**/*.scss' ] )
 		.pipe(
 			sass({
@@ -33,7 +36,13 @@ module.exports = function () {
 			}).on( 'error', sass.logError )
 		)
 		.pipe( gulp.dest( DEST ) )
+		.on( 'end', function () {
+			gutil.log( 'Running PostCSS tasks...' );
+		})
 		.pipe( postcss( processors ) )
 		.pipe( rename({ extname: '.min.css' }) )
-		.pipe( gulp.dest( DEST ) );
+		.pipe( gulp.dest( DEST ) )
+		.on( 'end', function () {
+			gutil.log( 'Saved to /build.css' );
+		});
 };
