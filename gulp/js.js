@@ -4,7 +4,7 @@ var gulp = require( 'gulp' ),
 	bundle = require( './browserify' );
 
 module.exports = function () {
-	gutil.log( 'JSLint\'ing files...' );
+	gutil.log( 'JSHint\'ing files...' );
 
 	gulp.src( [
 			'js/**/*.js',
