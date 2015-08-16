@@ -20,8 +20,7 @@ var gulp = require( 'gulp' ),
 			],
 			cascade: false
 		}),
-		mqpacker,
-		csswring
+		mqpacker
 	];
 
 module.exports = function () {
@@ -35,11 +34,12 @@ module.exports = function () {
 				outputStyle: 'expanded'
 			}).on( 'error', sass.logError )
 		)
-		.pipe( gulp.dest( DEST ) )
 		.on( 'end', function () {
 			gutil.log( 'Running PostCSS tasks...' );
 		})
 		.pipe( postcss( processors ) )
+		.pipe( gulp.dest( DEST ) )
+		.pipe( postcss( [ csswring ] ) )
 		.pipe( rename({ extname: '.min.css' }) )
 		.pipe( gulp.dest( DEST ) )
 		.on( 'end', function () {

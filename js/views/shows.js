@@ -19,6 +19,8 @@ ShowsView = Backbone.View.extend({
 	render: function () {
 		_.invoke( this.views, 'remove' );
 
+		console.log( this.collection.toJSON() );
+
 		this.views = this.collection.map( this.renderShow );
 
 		this.$el.append( _.pluck( this.views, 'el' ) );

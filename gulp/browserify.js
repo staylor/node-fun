@@ -32,12 +32,13 @@ function bundle() {
 			gutil.log( 'Saved to ./build/js' );
 			gutil.log( 'Uglifying files...' );
 		})
-		.pipe( gulp.dest( DEST ) )
 		.pipe( buffer() )
-		.pipe( uglify() )
-		.on( 'end', function () {
-			gutil.log( 'Saving minified files to ./build/js' );
-		})
+		.pipe( gulp.dest( DEST ) )
+//		.pipe( buffer() )
+//		.pipe( uglify() )
+//		.on( 'end', function () {
+//			gutil.log( 'Saving minified files to ./build/js' );
+//		})
 		.pipe( rename({ extname: '.min.js' }) )
 		.pipe( gulp.dest( DEST ) )
 		.on( 'end', function () {

@@ -13,6 +13,10 @@ BandsInTown = function () {};
 
 api = {
 	eventsCallback: function ( response ) {
+		if ( response.errors ) {
+			return;
+		}
+
 		var res = this.response,
 			calls = [],
 			names = {},
@@ -24,6 +28,8 @@ api = {
 			var artists = _.pluck( data.artists, 'name' ),
 				asyncArtists,
 				diff;
+
+			console.log( artists );
 
 			stack[ data.id ] = data;
 			waiting[ data.id ] = artists;
@@ -40,16 +46,13 @@ api = {
 
 				calls.push( function ( callback ) {
 					spotify.search( artist, function ( resp ) {
-						var best;
-						if ( ! resp.artists || ! resp.artists.items.length ) {
-							callback( false );
+						if ( ! resp ) {
+							console.log( 'Ditching', artist );
+							delete names[ artist ];
+						} else {
+							console.log( 'Setting', artist );
+							names[ artist ] = resp;
 						}
-
-						best = _.max( resp.artists.items, function ( artist ) {
-							return artist.followers.total;
-						} );
-
-						names[ artist ] = best;
 
 						callback( true );
 					} );
@@ -60,8 +63,15 @@ api = {
 
 		async.parallel( calls, function ( err ) {
 			_.each( waiting, function ( artists, key ) {
-				stack[ key ].related = [];
 				_.each( artists, function ( artist ) {
+					if ( ! names[ artist ] ) {
+						return;
+					}
+
+					if ( ! stack[ key ].related ) {
+						stack[ key ].related = [];
+					}
+
 					stack[ key ].related.push( names[ artist ] );
 				} );
 			} );

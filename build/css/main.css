@@ -27,6 +27,16 @@ li {
   border-bottom: 1px solid #eee;
 }
 
+li {
+  cursor: pointer;
+  color: #333;
+}
+
+li:hover {
+  background: #eee;
+  color: #000;
+}
+
 li:after {
   display: block;
   clear: both;

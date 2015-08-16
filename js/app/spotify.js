@@ -34,8 +34,26 @@ api = {
 				type: 'artist',
 				q: artist
 			}
-		}, callback );
-	}
+		}, function ( resp ) {
+			var best, items;
+
+			if ( ! resp.artists || ! resp.artists.items.length ) {
+				callback( false );
+			}
+
+			items = _.filter( resp.artists.items, function ( item ) {
+				return item.name.toLowerCase().trim() === artist.toLowerCase().trim();
+			} );
+
+			best = _.max( items, function ( artist ) {
+				return artist.followers.total;
+			} );
+
+			callback( best );
+		} );
+	},
+
+
 };
 
 _.extend( Spotify.prototype, ApiMixin );

@@ -1,5 +1,13 @@
 
 li {
+	cursor: pointer;
+	color: #333;
+
+	&:hover {
+		background: #eee;
+		color: #000;
+	}
+
 	&:after {
 		display: block;
 		clear: both;
