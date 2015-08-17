@@ -6,6 +6,7 @@
 var _ = require( 'underscore' ),
 	request = require( 'request' ),
 	ApiMixin = require( './api-mixin' ),
+	redis = require( './redis' ),
 
 	artistUri = '/artists/{0}',
 
@@ -13,21 +14,22 @@ var _ = require( 'underscore' ),
 	api;
 
 Spotify = function () {
-
+	this.client = request.defaults({
+		baseUrl: 'https://api.spotify.com/v1'
+	});
 };
 
 api = {
-	getClient: function () {
-		if ( ! this.client ) {
-			this.client = request.defaults({
-				baseUrl: 'https://api.spotify.com/v1'
-			});
-		}
 
-		return this.client;
+	getSearchCacheKey: function ( artist ) {
+		return [
+			'spotify_artist_search',
+			artist,
+			'v2'
+		].join( ':' );
 	},
 
-	search: function ( artist, callback ) {
+	searchRequest: function ( artist, callback ) {
 		this.getAsync( {
 			url: '/search',
 			qs: {
@@ -37,13 +39,21 @@ api = {
 		}, function ( resp ) {
 			var best, items;
 
+			redis.set( this.getSearchCacheKey( artist ), resp );
+
 			if ( ! resp.artists || ! resp.artists.items.length ) {
 				callback( false );
+				return;
 			}
 
 			items = _.filter( resp.artists.items, function ( item ) {
 				return item.name.toLowerCase().trim() === artist.toLowerCase().trim();
 			} );
+
+			if ( ! items || ! items.length ) {
+				callback( false );
+				return;
+			}
 
 			best = _.max( items, function ( artist ) {
 				return artist.followers.total;
@@ -53,10 +63,19 @@ api = {
 		} );
 	},
 
+	search: function ( artist, callback ) {
+		redis.get( this.getSearchCacheKey( artist ), _.bind( function ( err, value ) {
+			if ( value && 'false' !== String( value ) ) {
+				console.log( value );
+				callback( value );
+			} else {
+				this.searchRequest( artist, callback );
+			}
+		}, this ) );
+	}
 
 };
 
-_.extend( Spotify.prototype, ApiMixin );
-_.extend( Spotify.prototype, api );
+_.extend( Spotify.prototype, ApiMixin, api );
 
 module.exports = Spotify;

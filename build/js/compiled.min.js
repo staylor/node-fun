@@ -1,20 +1,29 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Backbone = require( 'backbone' ),
-	Show = require( '../models/show' ),
+var _ = require( 'underscore' ),
+	Backbone = require( 'backbone' ),
 	Shows;
 
 Shows = Backbone.Collection.extend({
-	model: Show,
+	comparator: function ( show ) {
+		return Date.parse( show.get( 'datetime' ) );
+	},
+
 	url: function () {
-		return '/data/shows?artist=' + encodeURIComponent( this.artist );
+		if ( this.opts && this.opts.artist ) {
+			return '/data/shows?artist=' + encodeURIComponent( this.opts.artist );
+		}
+
+		// NYC
+		return '/data/shows?metro=7644';
 	}
 });
 
 module.exports = Shows;
-},{"../models/show":3,"backbone":8}],2:[function(require,module,exports){
+},{"backbone":11,"underscore":16}],2:[function(require,module,exports){
 var $ = require( 'jquery' ),
 	_ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
+	NYCView = require( './views/nyc-button' ),
 	SearchView = require( './views/search' ),
 	ShowsView = require( './views/shows' ),
 	Collection = require( './collections/shows' ),
@@ -23,6 +32,11 @@ var $ = require( 'jquery' ),
 Backbone.$ = $;
 
 ShowsCollection = new Collection();
+
+new NYCView({
+	el: $('#search-nyc'),
+	collection: ShowsCollection
+});
 
 new SearchView({
 	el: $('#search-field'),
@@ -33,14 +47,24 @@ new ShowsView({
 	el: $('#shows'),
 	collection: ShowsCollection
 });
-},{"./collections/shows":1,"./views/search":5,"./views/shows":7,"backbone":8,"jquery":12,"underscore":13}],3:[function(require,module,exports){
+},{"./collections/shows":1,"./views/nyc-button":7,"./views/search":8,"./views/shows":10,"backbone":11,"jquery":15,"underscore":16}],3:[function(require,module,exports){
+var BandsInTown,
+	_ = require( 'underscore' ),
+	Show = require( './show' );
+
+BandsInTown = Show.extend({
+
+});
+
+module.exports = BandsInTown;
+},{"./show":4,"underscore":16}],4:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require('backbone'),
 	Show;
 
 Show = Backbone.Model.extend({
 
-	datetime: function () {
+	dateString: function () {
 		var dt = new Date( this.get( 'datetime' ) );
 		return dt.toLocaleString();
 	},
@@ -75,33 +99,93 @@ Show = Backbone.Model.extend({
 });
 
 module.exports = Show;
-},{"backbone":8,"underscore":13}],4:[function(require,module,exports){
+},{"backbone":11,"underscore":16}],5:[function(require,module,exports){
+var Songkick,
+	_ = require( 'underscore' ),
+	Show = require( './show' );
+
+Songkick = Show.extend({
+	artistNames: function () {
+		return _.pluck( this.get( 'artists' ), 'displayName' ).join( ', ' );
+	},
+
+	parse: function ( data ) {
+		var response = {},
+			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
+
+		response.datetime = data.start.datetime || data.start.date;
+
+		response.artists = _.pluck( data.performance, 'artist' );
+
+		venueParts.pop();
+
+		response.venue = {
+			name: data.venue.displayName,
+			region: venueParts.pop(),
+			city: venueParts.join( ', ' )
+		};
+
+		if ( data.related ) {
+			response.related = data.related;
+		}
+
+		return response;
+	}
+});
+
+module.exports = Songkick;
+},{"./show":4,"underscore":16}],6:[function(require,module,exports){
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
-    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h1>Hi!</h1>");t.b("\n");t.b("\n" + i);t.b("<p>");t.b("\n" + i);t.b("	<input type=\"text\" id=\"search-field\"/>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,104,155,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/compiled.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
-    templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("images",c,p,1),c,p,0,13,37,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/>");t.b("\n" + i);});c.pop();}t.b("<time>");t.b(t.v(t.f("datetime",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p><strong>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</strong>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");return t.fl(); },partials: {}, subs: {  }});
+    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h2>Search for Shows Today in New York</h2>");t.b("\n");t.b("\n" + i);t.b("<p>");t.b("\n" + i);t.b("	<button id=\"search-nyc\">Click for Shows</button>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<h2>Search Everywhere by Artist</h2>");t.b("\n");t.b("\n" + i);t.b("<p>");t.b("\n" + i);t.b("	<input type=\"text\" id=\"search-field\"/>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,233,284,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/compiled.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
+    templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");if(t.s(t.f("images",c,p,1),c,p,0,13,37,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/>");t.b("\n" + i);});c.pop();}t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p><strong>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</strong>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
-},{"hogan.js":10}],5:[function(require,module,exports){
+},{"hogan.js":13}],7:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
+	Songkick = require( '../models/songkick' ),
+	NYCView;
+
+NYCView = Backbone.View.extend({
+	events: {
+		'click': 'debouncedSearch'
+	},
+
+	debouncedSearch: _.debounce( function () {
+		this.collection.model = Songkick;
+		this.collection.opts = {};
+		this.collection.fetch({ reset: true });
+	}, 600 )
+
+});
+
+module.exports = NYCView;
+},{"../models/songkick":5,"backbone":11,"underscore":16}],8:[function(require,module,exports){
+var _ = require( 'underscore' ),
+	Backbone = require( 'backbone' ),
+	BandsInTown = require( '../models/bands-in-town' ),
 	SearchView;
 
 SearchView = Backbone.View.extend({
+	
 	events: {
 		'keyup': 'debouncedSearch'
 	},
 
 	debouncedSearch: _.debounce( function () {
-		this.collection.artist = this.el.value;
-		this.collection.fetch({reset: true});
+		this.collection.model = BandsInTown;
+		this.collection.opts = {
+			artist: this.el.value
+		};
+		this.collection.fetch({ reset: true });
 	}, 600 )
 
 });
 
 module.exports = SearchView;
-},{"backbone":8,"underscore":13}],6:[function(require,module,exports){
+},{"../models/bands-in-town":3,"backbone":11,"underscore":16}],9:[function(require,module,exports){
 /*globals HoganTemplates */
 
 var Backbone = require( 'backbone' ),
@@ -121,7 +205,7 @@ ShowView = Backbone.View.extend({
 });
 
 module.exports = ShowView;
-},{"../templates/compiled":4,"backbone":8}],7:[function(require,module,exports){
+},{"../templates/compiled":6,"backbone":11}],10:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	ShowView = require( './show' ),
@@ -152,7 +236,7 @@ ShowsView = Backbone.View.extend({
 });
 
 module.exports = ShowsView;
-},{"./show":6,"backbone":8,"underscore":13}],8:[function(require,module,exports){
+},{"./show":9,"backbone":11,"underscore":16}],11:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.1
 
@@ -2029,7 +2113,7 @@ module.exports = ShowsView;
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":12,"underscore":13}],9:[function(require,module,exports){
+},{"jquery":15,"underscore":16}],12:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2454,7 +2538,7 @@ module.exports = ShowsView;
   }
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],10:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2477,7 +2561,7 @@ Hogan.Template = require('./template').Template;
 Hogan.template = Hogan.Template;
 module.exports = Hogan;
 
-},{"./compiler":9,"./template":11}],11:[function(require,module,exports){
+},{"./compiler":12,"./template":14}],14:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2820,7 +2904,7 @@ var Hogan = {};
 
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -12032,7 +12116,7 @@ return jQuery;
 
 }));
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

@@ -4,7 +4,7 @@ var _ = require( 'underscore' ),
 
 Show = Backbone.Model.extend({
 
-	datetime: function () {
+	dateString: function () {
 		var dt = new Date( this.get( 'datetime' ) );
 		return dt.toLocaleString();
 	},

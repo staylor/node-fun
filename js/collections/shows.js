@@ -1,11 +1,19 @@
-var Backbone = require( 'backbone' ),
-	Show = require( '../models/show' ),
+var _ = require( 'underscore' ),
+	Backbone = require( 'backbone' ),
 	Shows;
 
 Shows = Backbone.Collection.extend({
-	model: Show,
+	comparator: function ( show ) {
+		return Date.parse( show.get( 'datetime' ) );
+	},
+
 	url: function () {
-		return '/data/shows?artist=' + encodeURIComponent( this.artist );
+		if ( this.opts && this.opts.artist ) {
+			return '/data/shows?artist=' + encodeURIComponent( this.opts.artist );
+		}
+
+		// NYC
+		return '/data/shows?metro=7644';
 	}
 });
 

@@ -1,16 +1,18 @@
+//io09K9l3ebJxmxe2
+
 var _ = require('underscore'),
-	request = require( 'request' ),
 	async = require( 'async' ),
 
+	request = require( 'request' ),
 	ApiMixin = require( './api-mixin' ),
 	Spotify = require( './spotify' ),
 
-	app_id = 'scott_node_test',
-	baseUri = 'http://api.bandsintown.com',
+	baseUri = 'http://api.songkick.com/api/3.0',
+	apiKey = 'io09K9l3ebJxmxe2',
 	api,
-	BandsInTown;
+	Songkick;
 
-BandsInTown = function () {
+Songkick = function () {
 	this.client = request.defaults({
 		baseUrl: baseUri
 	});
@@ -18,9 +20,8 @@ BandsInTown = function () {
 
 api = {
 
-	eventsCallback: function ( response ) {
-		if ( response.errors ) {
-			console.log( 'Errors', response.errors );
+	metroCallback: function ( response ) {
+		if ( ! response.resultsPage || ! response.resultsPage.results ) {
 			return;
 		}
 
@@ -29,12 +30,22 @@ api = {
 		this.waiting = {};
 
 		var calls = [],
+			items = response.resultsPage.results.event,
 			spotify = new Spotify();
 
-		_.each( response, function ( resp ) {
-			var artists = _.pluck( resp.artists, 'name' ),
+		_.each( items, function ( resp ) {
+			var performers = _.where( resp.performance, {
+					billing: 'headline'
+				} ),
+				artists,
+				headliner = _.findWhere( performers, {
+					billing: 'headline'
+				} ),
 				asyncArtists,
 				diff;
+
+
+			artists = _.pluck( headliner || performers, 'displayName' );
 
 			this.stack[ resp.id ] = resp;
 			this.waiting[ resp.id ] = artists;
@@ -68,15 +79,18 @@ api = {
 		async.parallel( calls, this.parallelCallback() );
 	},
 
-	getArtistEvents : function (artist, res) {
-		this.artist = artist;
+	getMetroEvents: function ( metroId, res ) {
 		this.response = res;
-		this.requestUri = this.format( '/artists/{0}/events.json?app_id={1}', artist, app_id );
+		this.requestUri = this.format(
+			'/metro_areas/{0}/calendar.json?apikey={1}',
+			metroId,
+			apiKey
+		);
 
-		this.getUriData( this.eventsCallback );
+		this.getUriData( this.metroCallback );
 	}
 };
 
-_.extend( BandsInTown.prototype, ApiMixin, api );
+_.extend( Songkick.prototype, ApiMixin, api );
 
-module.exports = BandsInTown;
+module.exports = Songkick;
