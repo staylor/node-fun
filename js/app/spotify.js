@@ -3,15 +3,13 @@
 //Client Secret
 //fddc22b8fd85445db6477b5fe502ab90
 
-var _ = require( 'underscore' ),
+var util = require( 'util' ),
+	_ = require( 'underscore' ),
+	Q = require( 'q' ),
 	request = require( 'request' ),
 	ApiMixin = require( './api-mixin' ),
-	redis = require( './redis' ),
 
-	artistUri = '/artists/{0}',
-
-	Spotify,
-	api;
+	Spotify;
 
 Spotify = function () {
 	this.client = request.defaults({
@@ -19,63 +17,43 @@ Spotify = function () {
 	});
 };
 
-api = {
+util.inherits( Spotify, ApiMixin );
 
-	getSearchCacheKey: function ( artist ) {
-		return [
-			'spotify_artist_search',
-			artist,
-			'v2'
-		].join( ':' );
-	},
+Spotify.prototype.parseSearch = function ( resp ) {
+	var items, trimmed;
 
-	searchRequest: function ( artist, callback ) {
-		this.getAsync( {
-			url: '/search',
-			qs: {
-				type: 'artist',
-				q: artist
-			}
-		}, function ( resp ) {
-			var best, items;
-
-			redis.set( this.getSearchCacheKey( artist ), resp );
-
-			if ( ! resp.artists || ! resp.artists.items.length ) {
-				callback( false );
-				return;
-			}
-
-			items = _.filter( resp.artists.items, function ( item ) {
-				return item.name.toLowerCase().trim() === artist.toLowerCase().trim();
-			} );
-
-			if ( ! items || ! items.length ) {
-				callback( false );
-				return;
-			}
-
-			best = _.max( items, function ( artist ) {
-				return artist.followers.total;
-			} );
-
-			callback( best );
-		} );
-	},
-
-	search: function ( artist, callback ) {
-		redis.get( this.getSearchCacheKey( artist ), _.bind( function ( err, value ) {
-			if ( value && 'false' !== String( value ) ) {
-				console.log( value );
-				callback( value );
-			} else {
-				this.searchRequest( artist, callback );
-			}
-		}, this ) );
+	if ( ! resp.artists || ! resp.artists.items.length ) {
+		return this.promise();
 	}
 
+	trimmed = this.artist.toLowerCase().trim();
+	items = _.filter( resp.artists.items, function ( item ) {
+		return item.name.toLowerCase().trim() === trimmed;
+	} );
+
+	if ( ! items || ! items.length ) {
+		return this.promise();
+	}
+
+	return Q.fcall( function () {
+		return _.max( items, function ( artist ) {
+			return artist.followers.total;
+		} );
+	} );
 };
 
-_.extend( Spotify.prototype, ApiMixin, api );
+Spotify.prototype.search = function ( artist ) {
+	this.parse = this.parseSearch;
+	this.artist = artist;
+	this.requestUri =  {
+		url: '/search',
+		qs: {
+			type: 'artist',
+			q: artist
+		}
+	};
+
+	return this.getUriData();
+};
 
 module.exports = Spotify;

@@ -1,17 +1,25 @@
 var BandsInTown = require( '../bands-in-town' ),
 	Songkick = require( '../songkick' ),
-	ShowsController;
+	ShowsController,
+	api;
 
+/**
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise}
+ */
 ShowsController = function ( req, res ) {
-	var api;
+	var deferred;
 
 	if ( req.query.artist ) {
-		api = new BandsInTown();
-		api.getArtistEvents( req.query.artist, res );
+		deferred = BandsInTown.getArtistEvents( req.query.artist );
 	} else if ( req.query.metro ) {
-		api = new Songkick();
-		api.getMetroEvents( req.query.metro, res );
+		deferred = Songkick.getMetroEvents( req.query.metro );
 	}
+
+	return deferred.then( function ( data ) {
+		res.json( data );
+	} );
 };
 
 module.exports = ShowsController;

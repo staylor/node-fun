@@ -26,7 +26,7 @@ Show = Backbone.Model.extend({
 
 		_.each( this.get( 'related' ), function ( artist ) {
 			var found = _.find( artist.images, function ( image ) {
-				return image.height > 100 && image.height < 300;
+				return image.height > 100 && image.height <= 300;
 			} );
 
 			if ( found ) {

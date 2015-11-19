@@ -4,7 +4,7 @@ var Songkick,
 
 Songkick = Show.extend({
 	artistNames: function () {
-		return _.pluck( this.get( 'artists' ), 'displayName' ).join( ', ' );
+		return _.pluck( this.get( 'artists' ), 'displayName' ).shift();
 	},
 
 	parse: function ( data ) {

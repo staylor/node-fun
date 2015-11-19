@@ -10,7 +10,7 @@ var gulp = require( 'gulp' ),
 	opts,
 	b;
 
-opts = assign( {}, watchify.args, customOpts = {
+opts = assign( {}, watchify.args, {
 	entries: [ './js/main.js' ]
 } );
 

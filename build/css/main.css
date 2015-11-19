@@ -43,10 +43,18 @@ li:after {
   content: ' ';
 }
 
-li img {
+li .image-link {
   display: block;
   float: left;
   margin-right: 20px;
+  width: 100px;
+  min-height: 100px;
+}
+
+li img {
+  display: block;
+  width: 100px;
+  height: auto;
 }
 
 li time {

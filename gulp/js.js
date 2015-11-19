@@ -15,5 +15,5 @@ module.exports = function () {
 		.pipe( jshint.reporter( 'jshint-stylish', { verbose: true } ) )
 		.pipe( jshint.reporter( 'fail' ) );
 
-	bundle();
+	return bundle();
 };

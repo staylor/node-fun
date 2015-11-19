@@ -1,82 +1,98 @@
-var _ = require('underscore'),
-	request = require( 'request' ),
-	async = require( 'async' ),
+var util = require( 'util' ),
+	_ = require( 'underscore' ),
+	Q = require( 'q' ),
 
 	ApiMixin = require( './api-mixin' ),
 	Spotify = require( './spotify' ),
 
 	app_id = 'scott_node_test',
-	baseUri = 'http://api.bandsintown.com',
-	api,
 	BandsInTown;
 
+/**
+ * @class
+ */
 BandsInTown = function () {
-	this.client = request.defaults({
-		baseUrl: baseUri
-	});
+	this.baseUri = 'http://api.bandsintown.com';
+
+	ApiMixin.call( this );
 };
 
-api = {
+util.inherits( BandsInTown, ApiMixin );
 
-	eventsCallback: function ( response ) {
-		if ( response.errors ) {
-			console.log( 'Errors', response.errors );
+/**
+ * @param {object} response
+ * @returns {Promise}
+ */
+BandsInTown.prototype.parse = function ( response ) {
+	var deferreds = [], spotify;
+
+	if ( response.errors ) {
+		console.log( 'Errors', response.errors );
+		return this.promise();
+	}
+
+	this.stack = {};
+	this.data = {};
+	this.waiting = {};
+
+	spotify = new Spotify();
+
+	_.each( response, function ( resp ) {
+		var artists = _.pluck( resp.artists, 'name' ),
+			asyncArtists,
+			diff;
+
+		artists = _.map( artists, function ( artist ) {
+			return artist.toLowerCase();
+		} );
+
+		this.stack[ resp.id ] = resp;
+		this.waiting[ resp.id ] = artists;
+
+		asyncArtists = _.keys( this.data );
+		diff = _.difference( artists, asyncArtists );
+
+		if ( ! diff.length ) {
 			return;
 		}
 
-		this.stack = {};
-		this.data = {};
-		this.waiting = {};
+		_.each( diff, function ( artist ) {
+			var deferred = Q.defer();
 
-		var calls = [],
-			spotify = new Spotify();
+			this.data[ artist ] = true;
 
-		_.each( response, function ( resp ) {
-			var artists = _.pluck( resp.artists, 'name' ),
-				asyncArtists,
-				diff;
+			spotify.search( artist ).then( function ( resp ) {
+				if ( ! resp ) {
+					delete this.data[ artist ];
+				} else {
+					this.data[ artist ] = resp;
+				}
 
-			this.stack[ resp.id ] = resp;
-			this.waiting[ resp.id ] = artists;
+				deferred.resolve();
+			}.bind( this ) );
 
-			asyncArtists = _.keys( this.data );
-			diff = _.difference( artists, asyncArtists );
-
-			if ( ! diff.length ) {
-				return;
-			}
-
-			_.each( diff, function ( artist ) {
-				var ctx = this;
-				this.data[ artist ] = true;
-
-				calls.push( function ( callback ) {
-					spotify.search( artist, function ( resp ) {
-						if ( ! resp ) {
-							delete ctx.data[ artist ];
-						} else {
-							ctx.data[ artist ] = resp;
-						}
-
-						callback( true );
-					} );
-				} );
-			}, this );
-
+			deferreds.push( deferred.promise );
 		}, this );
+	}, this );
 
-		async.parallel( calls, this.parallelCallback() );
-	},
-
-	getArtistEvents : function (artist, res) {
-		this.artist = artist;
-		this.response = res;
-		this.requestUri = this.format( '/artists/{0}/events.json?app_id={1}', artist, app_id );
-
-		this.getUriData( this.eventsCallback );
-	}
+	return Q.allSettled( deferreds ).then( function () {
+		return this.parseRelated();
+	}.bind( this ) );
 };
 
-_.extend( BandsInTown.prototype, ApiMixin, api );
+/**
+ *
+ * @param {string} artist
+ * @returns {Promise}
+ */
+BandsInTown.prototype.getArtistEvents = function ( artist ) {
+	this.requestUri = this.format(
+		'/artists/%s/events.json?app_id=%s',
+		artist.toLowerCase(),
+		app_id
+	);
 
-module.exports = BandsInTown;
+	return this.getUriData();
+};
+
+module.exports = new BandsInTown();

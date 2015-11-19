@@ -1,96 +1,107 @@
 //io09K9l3ebJxmxe2
 
-var _ = require('underscore'),
-	async = require( 'async' ),
+var util = require( 'util' ),
+	Q = require( 'q' ),
+	_ = require( 'underscore' ),
 
-	request = require( 'request' ),
 	ApiMixin = require( './api-mixin' ),
 	Spotify = require( './spotify' ),
 
-	baseUri = 'http://api.songkick.com/api/3.0',
 	apiKey = 'io09K9l3ebJxmxe2',
-	api,
 	Songkick;
 
+/**
+ * @class
+ */
 Songkick = function () {
-	this.client = request.defaults({
-		baseUrl: baseUri
-	});
+	this.baseUri = 'http://api.songkick.com/api/3.0';
+	ApiMixin.call( this );
 };
 
-api = {
+util.inherits( Songkick, ApiMixin );
 
-	metroCallback: function ( response ) {
-		if ( ! response.resultsPage || ! response.resultsPage.results ) {
+/**
+ *
+ * @param {object} response
+ * @returns {Promise}
+ */
+Songkick.prototype.parse = function ( response ) {
+	var deferreds = [], items, spotify;
+
+	if ( ! response.resultsPage || ! response.resultsPage.results ) {
+		return this.promise();
+	}
+
+	this.stack = {};
+	this.data = {};
+	this.waiting = {};
+
+	items = response.resultsPage.results.event;
+	spotify = new Spotify();
+
+	items.forEach( function ( resp ) {
+		var performers = _.where( resp.performance, {
+				billing: 'headline'
+			} ),
+			artists,
+			headliner = _.findWhere( performers, {
+				billing: 'headline'
+			} ),
+			asyncArtists,
+			diff;
+
+		artists = _.pluck( headliner || performers, 'displayName' );
+		artists = _.map( artists, function ( artist ) {
+			return artist.toLowerCase();
+		} );
+
+		this.stack[ resp.id ] = resp;
+		this.waiting[ resp.id ] = artists;
+
+		asyncArtists = _.keys( this.data );
+		diff = _.difference( artists, asyncArtists );
+
+		if ( ! diff.length ) {
 			return;
 		}
 
-		this.stack = {};
-		this.data = {};
-		this.waiting = {};
+		diff.forEach( function ( artist ) {
+			var deferred = Q.defer();
 
-		var calls = [],
-			items = response.resultsPage.results.event,
-			spotify = new Spotify();
+			this.data[ artist ] = true;
 
-		_.each( items, function ( resp ) {
-			var performers = _.where( resp.performance, {
-					billing: 'headline'
-				} ),
-				artists,
-				headliner = _.findWhere( performers, {
-					billing: 'headline'
-				} ),
-				asyncArtists,
-				diff;
+			spotify.search( artist ).then( function ( resp ) {
+				if ( ! resp ) {
+					delete this.data[ artist ];
+				} else {
+					this.data[ artist ] = resp;
+				}
+				deferred.resolve();
+			}.bind( this ) );
 
-
-			artists = _.pluck( headliner || performers, 'displayName' );
-
-			this.stack[ resp.id ] = resp;
-			this.waiting[ resp.id ] = artists;
-
-			asyncArtists = _.keys( this.data );
-			diff = _.difference( artists, asyncArtists );
-
-			if ( ! diff.length ) {
-				return;
-			}
-
-			_.each( diff, function ( artist ) {
-				var ctx = this;
-				this.data[ artist ] = true;
-
-				calls.push( function ( callback ) {
-					spotify.search( artist, function ( resp ) {
-						if ( ! resp ) {
-							delete ctx.data[ artist ];
-						} else {
-							ctx.data[ artist ] = resp;
-						}
-
-						callback( true );
-					} );
-				} );
-			}, this );
-
+			deferreds.push( deferred.promise );
 		}, this );
 
-		async.parallel( calls, this.parallelCallback() );
-	},
+	}, this );
 
-	getMetroEvents: function ( metroId, res ) {
-		this.response = res;
-		this.requestUri = this.format(
-			'/metro_areas/{0}/calendar.json?apikey={1}',
-			metroId,
-			apiKey
-		);
-
-		this.getUriData( this.metroCallback );
-	}
+	return Q.allSettled( deferreds ).then( function () {
+		return this.parseRelated();
+	}.bind( this ) );
 };
 
-_.extend( Songkick.prototype, ApiMixin, api );
+/**
+ *
+ * @param {string} metroId
+ * @returns {Promise}
+ */
+Songkick.prototype.getMetroEvents = function ( metroId ) {
+	this.requestUri = this.format(
+		'/metro_areas/%s/calendar.json?apikey=%s',
+		metroId,
+		apiKey
+	);
 
-module.exports = Songkick;
+	return this.getUriData();
+};
+
+module.exports = new Songkick();
