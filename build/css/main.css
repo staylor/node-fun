@@ -84,6 +84,7 @@ li {
   cursor: pointer;
   color: #333;
   margin: 0 0 10px;
+  max-width: 100%;
 }
 
 li:after {
