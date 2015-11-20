@@ -3,14 +3,16 @@ var util = require( 'util' ),
 	_ = require( 'underscore' ),
 	Q = require( 'q' ),
 	request = require( 'request' ),
-	redis = require( './redis' ),
+	redis = require( '../lib/redis' ),
 	ApiMixin;
 
 ApiMixin = function () {
-	this.client = request.defaults( this.config );
+	this.client = request.defaults( this.config || {} );
 };
 
 ApiMixin.prototype = {
+	defaultExpiration: 300,
+
 	cacheGroup: 'default',
 
 	promise: function () {
@@ -43,7 +45,7 @@ ApiMixin.prototype = {
 	setUriData: function ( data ) {
 		var key = this.getCacheKey();
 		redis.set( key, JSON.stringify( data ) );
-		redis.expire( key, this.expiration );
+		redis.expire( key, this.expiration || this.defaultExpiration );
 	},
 
 	getUriData: function () {
@@ -69,6 +71,7 @@ ApiMixin.prototype = {
 
 			this.getAsync( this.requestUri ).then( function ( response ) {
 				return self.parse( response ).then( function ( data ) {
+					console.log( 'Setting cache.' );
 					self.setUriData( data );
 
 					return deferred.resolve( data );
@@ -95,8 +98,6 @@ ApiMixin.prototype = {
 					return;
 				}
 
-				console.log( response.request.uri.href );
-
 				if ( 0 === response.headers['content-type'].indexOf( 'application/json' ) ) {
 					data = JSON.parse( body );
 				}
@@ -104,24 +105,6 @@ ApiMixin.prototype = {
 				resolve( data );
 			} );
 		} );
-	},
-
-	parseRelated: function () {
-		_.each( this.waiting, function ( items, key ) {
-			_.each( items, function ( item ) {
-				if ( ! this.data[ item ] ) {
-					return;
-				}
-
-				if ( ! this.stack[ key ].related ) {
-					this.stack[ key ].related = [];
-				}
-
-				this.stack[ key ].related.push( this.data[ item ] );
-			}, this );
-		}, this );
-
-		return _.values( this.stack );
 	}
 };
 

@@ -30,7 +30,7 @@ Show = Backbone.Model.extend({
 
 	spotifyUrl: function () {
 		var related = this.get( 'spotify' );
-		if ( ! related ) {
+		if ( ! related || ! related.external_urls ) {
 			return;
 		}
 

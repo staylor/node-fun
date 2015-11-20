@@ -5,8 +5,8 @@ var Songkick = require( '../models/songkick' ),
 SongkickCollection = Backbone.Collection.extend({
 	model: Songkick,
 	comparator: function ( event ) {
-		if ( event.get( 'related' ) && event.get( 'related' ).length ) {
-			return -1 * event.get( 'related' )[0].popularity;
+		if ( event.get( 'spotify' ) ) {
+			return -1 * event.get( 'spotify' ).popularity;
 		}
 		return -1 * event.get( 'popularity' );
 	},

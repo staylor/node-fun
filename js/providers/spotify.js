@@ -13,6 +13,7 @@ var util = require( 'util' ),
 	Spotify;
 
 Spotify = function () {
+	this.cacheGroup = 'spotify1';
 	this.expiration = expiration;
 	this.config = {
 		baseUrl: 'https://api.spotify.com/v1'
@@ -23,31 +24,28 @@ Spotify = function () {
 
 util.inherits( Spotify, ApiMixin );
 
-Spotify.prototype.parseSearch = function ( resp ) {
-	var items, trimmed;
+Spotify.prototype.parse = function ( resp ) {
+	var item = {}, trimmed;
 
 	if ( ! resp.artists || ! resp.artists.items.length ) {
 		return this.promise();
 	}
 
 	trimmed = this.artist.toLowerCase().trim();
-	items = _.filter( resp.artists.items, function ( item ) {
+	item = _.find( resp.artists.items, function ( item ) {
 		return item.name.toLowerCase().trim() === trimmed;
 	} );
 
-	if ( ! items || ! items.length ) {
+	if ( ! item ) {
 		return this.promise();
 	}
 
 	return Q.fcall( function () {
-		return _.max( items, function ( artist ) {
-			return artist.followers.total;
-		} );
+		return item;
 	} );
 };
 
 Spotify.prototype.search = function ( artist ) {
-	this.parse = this.parseSearch;
 	this.artist = artist;
 	this.requestUri =  {
 		url: '/search',
