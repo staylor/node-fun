@@ -112,7 +112,7 @@ Show = Backbone.Model.extend({
 			return;
 		}
 
-		return related[0].uri;
+		return related.uri;
 	},
 
 	spotifyUrl: function () {
