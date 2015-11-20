@@ -7,6 +7,8 @@ var util = require( 'util' ),
 	ApiMixin = require( './api-mixin' ),
 	Spotify = require( './spotify' ),
 
+	// 15 minutes
+	expiration = 60 * 15,
 	apiKey = 'io09K9l3ebJxmxe2',
 	Songkick;
 
@@ -14,7 +16,12 @@ var util = require( 'util' ),
  * @class
  */
 Songkick = function () {
-	this.baseUri = 'http://api.songkick.com/api/3.0';
+	this.cacheGroup = 'songkick';
+	this.expiration = expiration;
+	this.config = {
+		baseUrl: 'http://api.songkick.com/api/3.0'
+	};
+
 	ApiMixin.call( this );
 };
 
@@ -26,7 +33,7 @@ util.inherits( Songkick, ApiMixin );
  * @returns {Promise}
  */
 Songkick.prototype.parse = function ( response ) {
-	var deferreds = [], items, spotify;
+	var deferreds = [], items;
 
 	if ( ! response.resultsPage || ! response.resultsPage.results ) {
 		return this.promise();
@@ -37,7 +44,6 @@ Songkick.prototype.parse = function ( response ) {
 	this.waiting = {};
 
 	items = response.resultsPage.results.event;
-	spotify = new Spotify();
 
 	items.forEach( function ( resp ) {
 		var performers = _.where( resp.performance, {
@@ -50,7 +56,16 @@ Songkick.prototype.parse = function ( response ) {
 			asyncArtists,
 			diff;
 
-		artists = _.pluck( headliner || performers, 'displayName' );
+		if ( ! headliner && ! performers ) {
+			return;
+		}
+
+		if ( headliner ) {
+			artists = _.pluck( [ headliner ], 'displayName' );
+		} else if ( performers ) {
+			artists = _.pluck( performers, 'displayName' );
+		}
+
 		artists = _.map( artists, function ( artist ) {
 			return artist.toLowerCase();
 		} );
@@ -66,7 +81,12 @@ Songkick.prototype.parse = function ( response ) {
 		}
 
 		diff.forEach( function ( artist ) {
-			var deferred = Q.defer();
+			if ( this.data[ artist ] ) {
+				return;
+			}
+
+			var deferred = Q.defer(),
+				spotify = new Spotify();
 
 			this.data[ artist ] = true;
 

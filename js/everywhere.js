@@ -1,19 +1,15 @@
 var $ = require( 'jquery' ),
-	_ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
-	NYCView = require( './views/nyc-button' ),
+	BandsInTown = require( './models/bands-in-town' ),
 	SearchView = require( './views/search' ),
 	ShowsView = require( './views/shows' ),
-	Collection = require( './collections/shows' ),
+	BandsInTownCollection = require( './collections/bands-in-town' ),
 	ShowsCollection;
 
 Backbone.$ = $;
 
-ShowsCollection = new Collection();
-
-new NYCView({
-	el: $('#search-nyc'),
-	collection: ShowsCollection
+ShowsCollection = new BandsInTownCollection({
+	model: BandsInTown
 });
 
 new SearchView({

@@ -6,15 +6,19 @@
 var util = require( 'util' ),
 	_ = require( 'underscore' ),
 	Q = require( 'q' ),
-	request = require( 'request' ),
 	ApiMixin = require( './api-mixin' ),
 
+	// 7 days
+	expiration = 60 * 60 * 24 * 7,
 	Spotify;
 
 Spotify = function () {
-	this.client = request.defaults({
+	this.expiration = expiration;
+	this.config = {
 		baseUrl: 'https://api.spotify.com/v1'
-	});
+	};
+
+	ApiMixin.call( this );
 };
 
 util.inherits( Spotify, ApiMixin );

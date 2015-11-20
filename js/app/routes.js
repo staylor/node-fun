@@ -9,6 +9,10 @@ router.get( '/', function ( req, res ) {
 	res.render( 'index', {} );
 } );
 
+router.get( '/everywhere', function ( req, res ) {
+	res.render( 'everywhere', {} );
+} );
+
 router.get( '/data/shows', ShowsController );
 
 module.exports = router;

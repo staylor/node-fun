@@ -1,13 +1,16 @@
 var gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
-	hogan = require( 'gulp-hogan-compile' );
+	hogan = require( 'gulp-hogan-compile' ),
+	Q = require( 'q' ),
+	bundle = require( './browserify' ),
+	DEST = './js/templates';
 
-module.exports = function () {
-	var DEST = './js/templates';
+function compileTemplates() {
+	var deferred = Q.defer();
 
 	gutil.log( 'Compiling templates with Hogan...' );
 
-	return gulp.src( [
+	gulp.src( [
 		'./templates/*.mustache',
 		'!./templates/layout.mustache'
 	] )
@@ -15,8 +18,17 @@ module.exports = function () {
 			wrapper: 'commonjs',
 			hoganModule: 'hogan.js'
 		} ) )
-		.pipe( gulp.dest( DEST ) )
-		.on( 'end', function () {
-			gutil.log( 'Saved to /js/templates/compiled.js' );
-		});
+		.pipe(
+			gulp.dest( DEST )
+				.on( 'end', function () {
+					console.log( 'resolving' );
+					deferred.resolve();
+				} )
+		);
+
+	return deferred.promise;
+}
+
+module.exports = function () {
+	return compileTemplates().then( bundle );
 };

@@ -1,12 +1,14 @@
 var _ = require( 'underscore' ),
 	Backbone = require('backbone'),
+	isoParse = require( '../app/iso-8601-parse' ),
 	Show;
 
 Show = Backbone.Model.extend({
 
 	dateString: function () {
-		var dt = new Date( this.get( 'datetime' ) );
-		return dt.toLocaleString();
+		var timestamp = isoParse( this.get( 'datetime' ) ), date;
+		date = new Date( timestamp );
+		return date.toLocaleString();
 	},
 
 	artistNames: function () {
@@ -15,6 +17,24 @@ Show = Backbone.Model.extend({
 
 	venue: function () {
 		return this.get( 'venue' );
+	},
+
+	spotifyUri: function () {
+		var related = this.get( 'related' );
+		if ( ! related ) {
+			return;
+		}
+
+		return related[0].uri;
+	},
+
+	spotifyUrl: function () {
+		var related = this.get( 'related' );
+		if ( ! related || ! related[0].external_urls ) {
+			return;
+		}
+
+		return related[0].external_urls.spotify;
 	},
 
 	images: function () {
@@ -33,6 +53,10 @@ Show = Backbone.Model.extend({
 				images.push( found );
 			}
 		} );
+
+		if ( ! images.length ) {
+			return;
+		}
 
 		return images;
 	}

@@ -12,7 +12,9 @@ var util = require( 'util' ),
  * @class
  */
 BandsInTown = function () {
-	this.baseUri = 'http://api.bandsintown.com';
+	this.config = {
+		baseUrl: 'http://api.bandsintown.com'
+	};
 
 	ApiMixin.call( this );
 };

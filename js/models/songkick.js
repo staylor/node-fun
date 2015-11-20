@@ -12,7 +12,6 @@ Songkick = Show.extend({
 			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
 
 		response.datetime = data.start.datetime || data.start.date;
-
 		response.artists = _.pluck( data.performance, 'artist' );
 
 		venueParts.pop();

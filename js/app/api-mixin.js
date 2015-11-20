@@ -7,13 +7,11 @@ var util = require( 'util' ),
 	ApiMixin;
 
 ApiMixin = function () {
-	this.client = request.defaults({
-		baseUrl: this.baseUri
-	});
+	this.client = request.defaults( this.config );
 };
 
 ApiMixin.prototype = {
-	cacheGroup: 'v1',
+	cacheGroup: 'default',
 
 	promise: function () {
 		return Q.fcall( function () {
@@ -45,7 +43,7 @@ ApiMixin.prototype = {
 	setUriData: function ( data ) {
 		var key = this.getCacheKey();
 		redis.set( key, JSON.stringify( data ) );
-		redis.expire( key, 5 );
+		redis.expire( key, this.expiration );
 	},
 
 	getUriData: function () {
@@ -53,6 +51,7 @@ ApiMixin.prototype = {
 
 		redis.get( this.getCacheKey(), function ( err, value ) {
 			if ( err ) {
+				console.log( err );
 				deferred.reject( err );
 				return;
 			}
@@ -75,6 +74,7 @@ ApiMixin.prototype = {
 					return deferred.resolve( data );
 				} );
 			}, function ( reason ) {
+				console.log( reason );
 				deferred.reject( reason );
 			} );
 		}.bind( this ) );
@@ -89,13 +89,13 @@ ApiMixin.prototype = {
 			client( requestUri, function ( err, response, body ) {
 				var data = body;
 
-				console.log( response.request.uri.href );
-
 				if ( err || response.statusCode >= 400 ) {
-					console.log( 'Rejected...', response.body );
+					console.log( 'Rejected...', err || response.body );
 					reject( err );
 					return;
 				}
+
+				console.log( response.request.uri.href );
 
 				if ( 0 === response.headers['content-type'].indexOf( 'application/json' ) ) {
 					data = JSON.parse( body );
