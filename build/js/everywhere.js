@@ -107,7 +107,7 @@ Show = Backbone.Model.extend({
 	},
 
 	spotifyUri: function () {
-		var related = this.get( 'related' );
+		var related = this.get( 'spotify' );
 		if ( ! related ) {
 			return;
 		}
