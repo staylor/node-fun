@@ -3,14 +3,14 @@ var gulp = require( 'gulp' );
 module.exports = function () {
 	var watchers = [
 		gulp.watch(
-			[ './scss/**/*.scss' ],
+			[
+				'./scss/**/*.scss'
+			],
 			[ 'scss-pipeline' ]
 		),
 		gulp.watch(
 			[
-				'js/**/*.js',
-				'!js/gulp/**/*.js',
-				'!js/templates/**/*.js'
+				'./js/**/*.js'
 			],
 			[ 'js-pipeline' ]
 		),

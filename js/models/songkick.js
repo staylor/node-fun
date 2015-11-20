@@ -8,6 +8,10 @@ Songkick = Show.extend({
 	},
 
 	parse: function ( data ) {
+		return Songkick.parseData( data );
+	}
+}, {
+	parseData: function ( data ) {
 		var response = {},
 			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
 
@@ -22,12 +26,12 @@ Songkick = Show.extend({
 			city: venueParts.join( ', ' )
 		};
 
-		if ( data.related ) {
-			response.related = data.related;
+		if ( data.spotify ) {
+			response.spotify = data.spotify;
 		}
 
 		return response;
 	}
-});
+} );
 
 module.exports = Songkick;

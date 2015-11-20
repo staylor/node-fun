@@ -7,9 +7,8 @@ module.exports = function () {
 	gutil.log( 'JSHint\'ing files...' );
 
 	gulp.src( [
-			'js/**/*.js',
-			'!js/gulp/**/*.js',
-			'!js/templates/**/*.js'
+			'./js/**/*.js',
+			'!./js/templates/**/*.js'
 		] )
 		.pipe( jshint() )
 		.pipe( jshint.reporter( 'jshint-stylish', { verbose: true } ) )

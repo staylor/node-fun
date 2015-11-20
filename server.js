@@ -1,7 +1,7 @@
 var express = require( 'express' ),
 	path = require( 'path' ),
 	app,
-	AppRouter = require( './js/app/routes.js' ),
+	AppRouter = require( './js/routes.js' ),
 	port = 5000;
 
 app = express();

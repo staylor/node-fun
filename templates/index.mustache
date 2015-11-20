@@ -2,8 +2,8 @@
 
 <h2>Shows Today in New York</h2>
 
-<ul id="shows"></ul>
-
-{{#yield-scripts}}
-<script src="/build/js/index.min.js"></script>
-{{/yield-scripts}}
+<ul id="shows">
+	{{# shows  }}
+	<li>{{> show }}</li>
+	{{/ shows  }}
+</ul>

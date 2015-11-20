@@ -1,8 +1,8 @@
 var BandsInTown = require( '../models/bands-in-town' ),
-	ShowsCollection = require( './shows' ),
+	Backbone = require( 'backbone' ),
 	BandsInTownCollection;
 
-BandsInTownCollection = ShowsCollection.extend({
+BandsInTownCollection = Backbone.Collection.extend({
 	model: BandsInTown,
 
 	comparator: function ( show ) {

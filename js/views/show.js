@@ -1,5 +1,3 @@
-/*globals HoganTemplates */
-
 var Backbone = require( 'backbone' ),
 	templates = require( '../templates/compiled' ),
 	ShowView;

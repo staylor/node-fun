@@ -1,4 +1,47 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var $ = require( 'jquery' ),
+	Backbone = require( 'backbone' ),
+	BandsInTown = require( '../models/bands-in-town' ),
+	SearchView = require( '../views/search' ),
+	ShowsView = require( '../views/shows' ),
+	BandsInTownCollection = require( '../collections/bands-in-town' ),
+	ShowsCollection;
+
+Backbone.$ = $;
+
+ShowsCollection = new BandsInTownCollection({
+	model: BandsInTown
+});
+
+new SearchView({
+	el: $('#search-field'),
+	collection: ShowsCollection
+});
+
+new ShowsView({
+	el: $('#shows'),
+	collection: ShowsCollection
+});
+
+},{"../collections/bands-in-town":2,"../models/bands-in-town":4,"../views/search":7,"../views/shows":9,"backbone":10,"jquery":14}],2:[function(require,module,exports){
+var BandsInTown = require( '../models/bands-in-town' ),
+	Backbone = require( 'backbone' ),
+	BandsInTownCollection;
+
+BandsInTownCollection = Backbone.Collection.extend({
+	model: BandsInTown,
+
+	comparator: function ( show ) {
+		return Date.parse( show.datetime );
+	},
+
+	url: function () {
+		return '/data/shows?artist=' + encodeURIComponent( this.opts.artist );
+	}
+});
+
+module.exports = BandsInTownCollection;
+},{"../models/bands-in-town":4,"backbone":10}],3:[function(require,module,exports){
 module.exports = function ( date ) {
 	var timestamp, struct, i, k,
 		minutesOffset = 0,
@@ -33,69 +76,18 @@ module.exports = function ( date ) {
 
 	return timestamp;
 };
-},{}],2:[function(require,module,exports){
-var BandsInTown = require( '../models/bands-in-town' ),
-	ShowsCollection = require( './shows' ),
-	BandsInTownCollection;
-
-BandsInTownCollection = ShowsCollection.extend({
-	model: BandsInTown,
-
-	comparator: function ( show ) {
-		return Date.parse( show.datetime );
-	},
-
-	url: function () {
-		return '/data/shows?artist=' + encodeURIComponent( this.opts.artist );
-	}
-});
-
-module.exports = BandsInTownCollection;
-},{"../models/bands-in-town":5,"./shows":3}],3:[function(require,module,exports){
-var Backbone = require( 'backbone' ),
-	Shows;
-
-Shows = Backbone.Collection.extend({});
-
-module.exports = Shows;
-},{"backbone":11}],4:[function(require,module,exports){
-var $ = require( 'jquery' ),
-	Backbone = require( 'backbone' ),
-	BandsInTown = require( './models/bands-in-town' ),
-	SearchView = require( './views/search' ),
-	ShowsView = require( './views/shows' ),
-	BandsInTownCollection = require( './collections/bands-in-town' ),
-	ShowsCollection;
-
-Backbone.$ = $;
-
-ShowsCollection = new BandsInTownCollection({
-	model: BandsInTown
-});
-
-new SearchView({
-	el: $('#search-field'),
-	collection: ShowsCollection
-});
-
-new ShowsView({
-	el: $('#shows'),
-	collection: ShowsCollection
-});
-
-},{"./collections/bands-in-town":2,"./models/bands-in-town":5,"./views/search":8,"./views/shows":10,"backbone":11,"jquery":15}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var BandsInTown,
-	_ = require( 'underscore' ),
 	Show = require( './show' );
 
-BandsInTown = Show.extend({
-});
+BandsInTown = Show.extend({});
 
 module.exports = BandsInTown;
-},{"./show":6,"underscore":16}],6:[function(require,module,exports){
+
+},{"./show":5}],5:[function(require,module,exports){
 var _ = require( 'underscore' ),
-	Backbone = require('backbone'),
-	isoParse = require( '../app/iso-8601-parse' ),
+	Backbone = require( 'backbone' ),
+	isoParse = require( '../lib/iso-8601-parse' ),
 	Show;
 
 Show = Backbone.Model.extend({
@@ -124,74 +116,63 @@ Show = Backbone.Model.extend({
 	},
 
 	spotifyUrl: function () {
-		var related = this.get( 'related' );
-		if ( ! related || ! related[0].external_urls ) {
+		var related = this.get( 'spotify' );
+		if ( ! related ) {
 			return;
 		}
 
-		return related[0].external_urls.spotify;
+		return related.external_urls.spotify;
 	},
 
 	images: function () {
 		var images = [];
 
-		if ( ! this.get( 'related' ) ) {
+		if ( ! this.get( 'spotify' ) ) {
 			return;
 		}
 
-		_.each( this.get( 'related' ), function ( artist ) {
-			var found = _.find( artist.images, function ( image ) {
-				return image.height > 100 && image.height <= 300;
-			} );
-
-			if ( found ) {
-				images.push( found );
-			}
+		images = _.find( this.get( 'spotify' ).images, function ( image ) {
+			return image.height > 100 && image.height <= 300;
 		} );
-
-		if ( ! images.length ) {
-			return;
-		}
 
 		return images;
 	}
 });
 
 module.exports = Show;
-},{"../app/iso-8601-parse":1,"backbone":11,"underscore":16}],7:[function(require,module,exports){
+
+},{"../lib/iso-8601-parse":3,"backbone":10,"underscore":15}],6:[function(require,module,exports){
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
     templates['everywhere'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/\">Search NYC Tonight</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Search Everywhere by Artist</h2>");t.b("\n");t.b("\n" + i);t.b("<p class=\"everywhere-field\">");t.b("\n" + i);t.b("	<input type=\"text\" id=\"search-field\"/>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,189,242,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/everywhere.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
-    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Today in New York</h2>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,119,167,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/index.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
+    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Today in New York</h2>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\">");t.b("\n" + i);if(t.s(t.f("shows",c,p,1),c,p,0,109,133,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	<li>");t.b(t.rp("<show0",c,p,""));t.b("</li>");t.b("\n" + i);});c.pop();}t.b("</ul>");t.b("\n");return t.fl(); },partials: {"<show0":{name:"show", partials: {}, subs: {  }}}, subs: {  }});
     templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);t.b("<p class=\"spotify\">");t.b("\n" + i);t.b("	<strong>Spotify:</strong>");t.b("\n" + i);t.b("	<a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">APP</a> <a href=\"");t.b(t.t(t.f("spotifyUrl",c,p,0)));t.b("\">WEB</a>");t.b("\n" + i);t.b("</p>");return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
-},{"hogan.js":13}],8:[function(require,module,exports){
+},{"hogan.js":12}],7:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
-	BandsInTown = require( '../models/bands-in-town' ),
 	SearchView;
 
 SearchView = Backbone.View.extend({
 
-	events: {
-		'keyup': 'debouncedSearch'
+	intialize: function () {
+		this.events.keyup = _.debounce( this.debouncedSearch, 600 );
 	},
 
-	debouncedSearch: _.debounce( function () {
+	debouncedSearch: function () {
 		this.collection.opts = {
 			artist: this.el.value
 		};
 		this.collection.fetch({ reset: true });
-	}, 600 )
+	}
 
 });
 
 module.exports = SearchView;
-},{"../models/bands-in-town":5,"backbone":11,"underscore":16}],9:[function(require,module,exports){
-/*globals HoganTemplates */
 
+},{"backbone":10,"underscore":15}],8:[function(require,module,exports){
 var Backbone = require( 'backbone' ),
 	templates = require( '../templates/compiled' ),
 	ShowView;
@@ -209,7 +190,8 @@ ShowView = Backbone.View.extend({
 });
 
 module.exports = ShowView;
-},{"../templates/compiled":7,"backbone":11}],10:[function(require,module,exports){
+
+},{"../templates/compiled":6,"backbone":10}],9:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	ShowView = require( './show' ),
@@ -240,7 +222,8 @@ ShowsView = Backbone.View.extend({
 });
 
 module.exports = ShowsView;
-},{"./show":9,"backbone":11,"underscore":16}],11:[function(require,module,exports){
+
+},{"./show":8,"backbone":10,"underscore":15}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2138,7 +2121,7 @@ module.exports = ShowsView;
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":15,"underscore":16}],12:[function(require,module,exports){
+},{"jquery":14,"underscore":15}],11:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2563,7 +2546,7 @@ module.exports = ShowsView;
   }
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2586,7 +2569,7 @@ Hogan.Template = require('./template').Template;
 Hogan.template = Hogan.Template;
 module.exports = Hogan;
 
-},{"./compiler":12,"./template":14}],14:[function(require,module,exports){
+},{"./compiler":11,"./template":13}],13:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2929,7 +2912,7 @@ var Hogan = {};
 
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -12141,7 +12124,7 @@ return jQuery;
 
 }));
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -13691,4 +13674,4 @@ return jQuery;
   }
 }.call(this));
 
-},{}]},{},[4]);
+},{}]},{},[1]);

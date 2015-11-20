@@ -58,6 +58,30 @@ SongkickCollection = ShowsCollection.extend({
 	url: function () {
 		// NYC
 		return '/data/shows?metro=7644';
+	},
+
+	parse: function ( data ) {
+		var response = {},
+			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
+
+		console.log( data );
+
+		response.datetime = data.start.datetime || data.start.date;
+		response.artists = _.pluck( data.performance, 'artist' );
+
+		venueParts.pop();
+
+		response.venue = {
+			name: data.venue.displayName,
+			region: venueParts.pop(),
+			city: venueParts.join( ', ' )
+		};
+
+		if ( data.related ) {
+			response.related = data.related;
+		}
+
+		return response;
 	}
 });
 
@@ -154,28 +178,6 @@ var Songkick,
 Songkick = Show.extend({
 	artistNames: function () {
 		return _.pluck( this.get( 'artists' ), 'displayName' ).shift();
-	},
-
-	parse: function ( data ) {
-		var response = {},
-			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
-
-		response.datetime = data.start.datetime || data.start.date;
-		response.artists = _.pluck( data.performance, 'artist' );
-
-		venueParts.pop();
-
-		response.venue = {
-			name: data.venue.displayName,
-			region: venueParts.pop(),
-			city: venueParts.join( ', ' )
-		};
-
-		if ( data.related ) {
-			response.related = data.related;
-		}
-
-		return response;
 	}
 });
 
@@ -185,7 +187,7 @@ module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
     templates['everywhere'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/\">Search NYC Tonight</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Search Everywhere by Artist</h2>");t.b("\n");t.b("\n" + i);t.b("<p class=\"everywhere-field\">");t.b("\n" + i);t.b("	<input type=\"text\" id=\"search-field\"/>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,189,242,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/everywhere.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
-    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Today in New York</h2>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,119,167,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/index.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
+    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Today in New York</h2>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\">");t.b("\n" + i);if(t.s(t.f("shows",c,p,1),c,p,0,109,133,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	<li>");t.b(t.rp("<show0",c,p,""));t.b("</li>");t.b("\n" + i);});c.pop();}t.b("</ul>");t.b("\n");return t.fl(); },partials: {"<show0":{name:"show", partials: {}, subs: {  }}}, subs: {  }});
     templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);t.b("<p class=\"spotify\">");t.b("\n" + i);t.b("	<strong>Spotify:</strong>");t.b("\n" + i);t.b("	<a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">APP</a> <a href=\"");t.b(t.t(t.f("spotifyUrl",c,p,0)));t.b("\">WEB</a>");t.b("\n" + i);t.b("</p>");return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();

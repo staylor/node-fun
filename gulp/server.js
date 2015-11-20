@@ -5,9 +5,7 @@ module.exports = function () {
 		script: 'server.js',
 		ignore: [
 			'./js/**/*.js',
-			'./build/**/*.js',
-			'./gulp/**/*.js',
-			'!./js/app/**/*.js'
+			'!./build/**/*.js'
 		]
 	});
 };

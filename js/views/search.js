@@ -1,20 +1,19 @@
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
-	BandsInTown = require( '../models/bands-in-town' ),
 	SearchView;
 
 SearchView = Backbone.View.extend({
 
-	events: {
-		'keyup': 'debouncedSearch'
+	intialize: function () {
+		this.events.keyup = _.debounce( this.debouncedSearch, 600 );
 	},
 
-	debouncedSearch: _.debounce( function () {
+	debouncedSearch: function () {
 		this.collection.opts = {
 			artist: this.el.value
 		};
 		this.collection.fetch({ reset: true });
-	}, 600 )
+	}
 
 });
 

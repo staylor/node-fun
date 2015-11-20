@@ -1,6 +1,6 @@
 var _ = require( 'underscore' ),
-	Backbone = require('backbone'),
-	isoParse = require( '../app/iso-8601-parse' ),
+	Backbone = require( 'backbone' ),
+	isoParse = require( '../lib/iso-8601-parse' ),
 	Show;
 
 Show = Backbone.Model.extend({
@@ -29,34 +29,24 @@ Show = Backbone.Model.extend({
 	},
 
 	spotifyUrl: function () {
-		var related = this.get( 'related' );
-		if ( ! related || ! related[0].external_urls ) {
+		var related = this.get( 'spotify' );
+		if ( ! related ) {
 			return;
 		}
 
-		return related[0].external_urls.spotify;
+		return related.external_urls.spotify;
 	},
 
 	images: function () {
 		var images = [];
 
-		if ( ! this.get( 'related' ) ) {
+		if ( ! this.get( 'spotify' ) ) {
 			return;
 		}
 
-		_.each( this.get( 'related' ), function ( artist ) {
-			var found = _.find( artist.images, function ( image ) {
-				return image.height > 100 && image.height <= 300;
-			} );
-
-			if ( found ) {
-				images.push( found );
-			}
+		images = _.find( this.get( 'spotify' ).images, function ( image ) {
+			return image.height > 100 && image.height <= 300;
 		} );
-
-		if ( ! images.length ) {
-			return;
-		}
 
 		return images;
 	}
