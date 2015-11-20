@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<title>Scott Taylor</title>
+<style>
+* {font-family: sans-serif; margin: 0; padding: 0; border: 0;}
+section {width: 75%; margin: 40px auto;}
+h1 {margin-bottom: 20px;}
+table {border-collapse: collapse; width: 100%;}
+td {padding: 25px 10px 5px; border-collapse: collapse; width: 13%; position: relative;
+	vertical-align: middle; font-size: 14px;}
+.b {border-bottom: 1px solid #eee;}
+.name {width: 20%; border-bottom: 1px solid #eee; }
+strong {position: absolute; bottom: 9px; left: 5px;}
+.h strong {bottom: auto; top: 5px; color: white;}
+span {display: block; background: deeppink; position: absolute; top: 1px; left: 1px; right: 0;}
+</style>
+
+<section>
+	<h1>Scott Taylor Bachelor Party in New Orleans - Arrival/Departure Times</h1>
+	<table id="boys">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Wednesday</th>
+				<th>Thursday</th>
+				<th>Friday</th>
+				<th>Saturday</th>
+				<th>Sunday</th>
+				<th>Monday</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</section>
+
+<script>
+(function (d) {
+	var boys = [
+			{name: 'Scott Taylor', start: {day: 1, hour: 17}, end: {day: 6, hour: 9}},
+			{name: 'Sean Powell', start: {day: 3, hour: 10}, end: {day: 6, hour: 15}},
+			{name: 'Chris Dreyer', start: {day: 3, hour: 10.5}, end: {day: 6, hour: 8}},
+			{name: 'Brian Gitman', start: {day: 3, hour: 16}, end: {day: 6, hour: 17}},
+			{name: 'John Marnell', start: {day: 1, hour: 17}, end: {day: 5, hour: 10}},
+			{name: 'Adam Housman', start: {day: 3, hour: 16}, end: {day: 5, hour: 11}},
+			{name: 'Ben Pila', start: {day: 3, hour: 17}, end: {day: 6, hour: 17}},
+			{name: 'Seth Baker', start: {day: 3, hour: 20.5}, end: {day: 5, hour: 13}},
+			{name: 'Jonathan Ford', start: {day: 2, hour: 16}, end: {day: 5, hour: 9}},
+			{name: 'Eric Anderson', start: {day: 2, hour: 11}, end: {day: 5, hour: 19}},
+			{name: 'Brian DeLadurantey', start: {day: 0, hour: 17}, end: {day: 0, hour: 9}},
+			{name: 'Frank Caratozzolo', start: {day: 2, hour: 19.5}, end: {day: 5, hour: 20}},
+			{name: 'Seth Pompan', start: {day: 2, hour: 19.5}, end: {day: 5, hour: 20}}
+		],
+
+		table = d.getElementById( 'boys' ),
+
+		row;
+
+	function td( content ) {
+		var td = d.createElement( 'td' );
+		td.innerText = content || '';
+		return td;
+	}
+
+	function bounds( data ) {
+		return data.start.day && data.end.day;
+	}
+
+	function within( data, i ) {
+		return i >= data.start.day && i <= data.end.day;
+	}
+
+	function hour( hour ) {
+		if ( hour > 12 ) {
+			return Math.round( hour - 12 ) + 'PM';
+		} else {
+			return Math.round( hour ) + 'AM';
+		}
+	}
+
+	function shake() {
+		boys.sort(function() {
+			return 0.5 - Math.random();
+		});
+
+		render();
+	}
+
+	function render() {
+		table.tBodies[0].innerHTML = '';
+
+		boys.forEach(function (boy) {
+			var pct, text, st, cell, s, i;
+
+			row = d.createElement( 'tr' );
+			cell = td( boy.name );
+			cell.className = 'name';
+			row.appendChild( cell );
+			for ( i = 1; i <= 6; i += 1 ) {
+				cell = td();
+				if ( bounds( boy ) && within( boy, i ) ) {
+					s = d.createElement( 'span' );
+					pct = 0;
+					if ( i === boy.start.day ) {
+						pct = Math.round( ( boy.start.hour / 24 ) * 100 );
+						text = hour( boy.start.hour );
+					} else if ( i === boy.end.day ) {
+						pct = 100 - Math.round( ( boy.end.hour / 24 ) * 100 );
+						text = hour( boy.end.hour );
+					} else {
+						text = '';
+						s.style.bottom = 0;
+					}
+
+					if ( pct ) {
+						if ( pct < 50 ) {
+							cell.className = 'b h';
+						} else {
+							cell.className = 'b';
+						}
+						s.style.bottom = 'calc(' + pct + '% + 1px)';
+					}
+
+					st = d.createElement( 'strong' );
+					st.innerText = text;
+					cell.appendChild( s ).parentNode.appendChild( st );
+				} else {
+					cell.className = 'b';
+				}
+				row.appendChild( cell );
+			}
+
+			table.tBodies[0].appendChild( row );
+		});
+	}
+
+	shake();
+	window.setInterval( shake, 7000 );
+
+}(document));
+</script>
+
