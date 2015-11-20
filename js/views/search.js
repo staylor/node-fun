@@ -3,17 +3,16 @@ var _ = require( 'underscore' ),
 	SearchView;
 
 SearchView = Backbone.View.extend({
-
-	intialize: function () {
-		this.events.keyup = _.debounce( this.debouncedSearch, 600 );
+	events: {
+		'keyup' : 'debouncedSearch'
 	},
 
-	debouncedSearch: function () {
+	debouncedSearch: _.debounce( function () {
 		this.collection.opts = {
 			artist: this.el.value
 		};
 		this.collection.fetch({ reset: true });
-	}
+	}, 600 )
 
 });
 
