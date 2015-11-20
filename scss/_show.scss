@@ -1,10 +1,14 @@
+ul {
+	box-sizing: border-box;
+	max-width: 100%;
+	width: auto;
+}
 
 li {
 	display: block;
 	cursor: pointer;
 	color: #333;
 	margin: 0 0 10px;
-	max-width: 100%;
 
 	&:after {
 		display: block;
