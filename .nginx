@@ -1,7 +1,9 @@
 server {
 	listen 80;
 	server_name scotttaylor.nyc www.scotttaylor.nyc;
-	root /var/www/scotttaylor.nyc/public_html;
+	root         /var/www/scotttaylor.nyc/public_html;
+	access_log   /var/www/scotttaylor.nyc/logs/access.log;
+	error_log    /var/www/scotttaylor.nyc/logs/error.log;
 
 	index index.html index.htm;
 
