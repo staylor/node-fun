@@ -1,0 +1,12 @@
+server {
+	listen 80;
+	server_name scotttaylor.nyc www.scotttaylor.nyc;
+	root /var/www/scotttaylor.nyc/public_html;
+
+	index index.html index.htm;
+
+	location / {
+		proxy_pass http://localhost:5000;
+		proxy_set_header Host $host;
+	}
+}
