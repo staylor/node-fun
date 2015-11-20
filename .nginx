@@ -5,8 +5,6 @@ server {
 	access_log   /var/www/scotttaylor.nyc/logs/access.log;
 	error_log    /var/www/scotttaylor.nyc/logs/error.log;
 
-	index index.html index.htm;
-
 	location / {
 		proxy_pass http://localhost:5000;
 		proxy_set_header Host $host;
