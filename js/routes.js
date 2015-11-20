@@ -1,13 +1,11 @@
-var _ = require( 'underscore' ),
-	express = require( 'express' ),
+var express = require( 'express' ),
 	ShowsController = require( './controllers/shows' ),
+	SongkickController = require( './controllers/songkick' ),
 	router;
 
 router = express.Router();
 
-router.get( '/', function ( req, res ) {
-	res.render( 'index', {} );
-} );
+router.get( '/', SongkickController );
 
 router.get( '/everywhere', function ( req, res ) {
 	res.render( 'everywhere', {} );
