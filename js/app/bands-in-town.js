@@ -5,6 +5,8 @@ var util = require( 'util' ),
 	ApiMixin = require( './api-mixin' ),
 	Spotify = require( './spotify' ),
 
+	// 3 hours
+	expiration = 60 * 60 * 3,
 	app_id = 'scott_node_test',
 	BandsInTown;
 
@@ -12,6 +14,8 @@ var util = require( 'util' ),
  * @class
  */
 BandsInTown = function () {
+	this.cacheGroup = 'bandsintown';
+	this.expiration = expiration;
 	this.config = {
 		baseUrl: 'http://api.bandsintown.com'
 	};
