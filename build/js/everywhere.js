@@ -57,7 +57,8 @@ var _ = require( 'underscore' ),
 
 Show = Backbone.Model.extend({
 	dateString: function () {
-		return moment( this.get( 'datetime' ), moment.ISO_8601 ).format( 'dddd, MMMM D, h:mma' );
+		var dt = this.get( 'datetime' );
+		return moment( dt, moment.ISO_8601 ).utcOffset( dt ).format( 'dddd, MMMM D, h:mma' );
 	},
 
 	artistNames: function () {
