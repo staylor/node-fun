@@ -16,6 +16,13 @@ Show = Backbone.Model.extend({
 		return this.get( 'venue' );
 	},
 
+	popularity: function () {
+		if ( this.get( 'spotify' ) ) {
+			return this.get( 'spotify' ).popularity;
+		}
+		return this.get( 'popularity' );
+	},
+
 	spotifyUri: function () {
 		var related = this.get( 'spotify' );
 		if ( ! related ) {

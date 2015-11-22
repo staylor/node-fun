@@ -96,7 +96,6 @@ Songkick.prototype.parse = function ( response ) {
 			} else {
 				waiting[ artist ] = [ id ];
 			}
-			console.log( 'Already querying.' );
 			return;
 		}
 

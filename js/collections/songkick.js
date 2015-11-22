@@ -4,11 +4,33 @@ var Songkick = require( '../models/songkick' ),
 
 SongkickCollection = Backbone.Collection.extend({
 	model: Songkick,
-	comparator: function ( event ) {
-		if ( event.get( 'spotify' ) ) {
-			return -1 * event.get( 'spotify' ).popularity;
+	comparator: function ( a, b ) {
+		var aPop = a.popularity(),
+			bPop = b.popularity();
+
+		// #2 exists
+		if ( bPop ) {
+
+			// both exist
+			if ( aPop ) {
+				if ( aPop === bPop ) {
+					return 0;
+				} else if ( aPop > bPop ) {
+					return -1;
+				} else {
+					return 1;
+				}
+
+			// #1 exists
+			} else {
+				return 1;
+			}
+
+		} else if ( aPop ) {
+			return -1;
 		}
-		return -1 * event.get( 'popularity' );
+
+		return 0;
 	},
 
 	url: function () {

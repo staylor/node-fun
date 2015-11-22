@@ -1,24 +1,21 @@
 var _ = require( 'underscore' ),
 	Songkick = require( '../providers/songkick' ),
 	SongkickModel = require( '../models/songkick' ),
-	SongickCollection = require( '../collections/songkick' );
+	SongkickCollection = require( '../collections/songkick' );
 
 module.exports = function ( req, res ) {
 	var s = new Songkick(), metro, metroName, locations;
 
 	if ( req.query.metro ) {
-		metro = req.query.metro;
+		metro = parseInt( req.query.metro, 10 );
 	} else {
-		metro = Songkick.METRO.NYC.id;
+		metro = parseInt( Songkick.METRO.NYC.id, 10 );
 	}
 
 	metroName = Songkick.Locations[ metro ];
-	locations = _.map( Songkick.Locations, function ( value, id ) {
-		return {
-			id: id,
-			name: value,
-			selected: id === metro
-		};
+	locations = _.map( Songkick.METRO, function ( value ) {
+		value.selected = parseInt( value.id, 10 ) === metro;
+		return value;
 	} );
 
 	s.getMetroEvents( metro ).then( function ( shows ) {
@@ -29,7 +26,7 @@ module.exports = function ( req, res ) {
 			return SongkickModel.parseData( show );
 		} );
 
-		SongkickShows = new SongickCollection( parsed );
+		SongkickShows = new SongkickCollection( parsed );
 
 		res.locals = {
 			locations: locations,
