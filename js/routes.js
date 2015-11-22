@@ -5,12 +5,14 @@ var express = require( 'express' ),
 
 router = express.Router();
 
-router.get( '/', SongkickController );
-
 router.get( '/everywhere', function ( req, res ) {
 	res.render( 'everywhere', {} );
 } );
 
 router.get( '/data/shows', ShowsController );
+
+router.get( '/metro/:metro_id', SongkickController );
+
+router.get( '/', SongkickController );
 
 module.exports = router;

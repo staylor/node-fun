@@ -6,8 +6,8 @@ var _ = require( 'underscore' ),
 module.exports = function ( req, res ) {
 	var s = new Songkick(), metro, metroName, locations;
 
-	if ( req.query.metro ) {
-		metro = parseInt( req.query.metro, 10 );
+	if ( req.params.metro_id ) {
+		metro = parseInt( req.params.metro_id, 10 );
 	} else {
 		metro = parseInt( Songkick.METRO.NYC.id, 10 );
 	}
