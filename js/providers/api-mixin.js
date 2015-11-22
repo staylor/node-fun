@@ -71,7 +71,6 @@ ApiMixin.prototype = {
 
 			this.getAsync( this.requestUri ).then( function ( response ) {
 				return self.parse( response ).then( function ( data ) {
-					console.log( 'Setting cache.' );
 					self.setUriData( data );
 
 					return deferred.resolve( data );

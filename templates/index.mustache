@@ -1,6 +1,15 @@
 <a href="/everywhere">Search Everywhere</a>
 
-<h2>Shows Today in New York</h2>
+<h2>Shows Today in {{ metroName }}</h2>
+
+<nav>{{# locations }}
+{{# selected }}
+<span>{{ name }}</span>
+{{/ selected }}
+{{^ selected }}
+<a href="/?metro={{ id }}">{{ name }}</a>
+{{/ selected }}
+{{/ locations }}</nav>
 
 <ul id="shows">
 	{{# shows  }}

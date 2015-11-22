@@ -83,6 +83,17 @@ input[type="text"] {
   margin-bottom: 20px;
 }
 
+nav {
+  display: block;
+  margin: 10px 0 20px;
+}
+
+nav a, nav span {
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 10px;
+}
+
 ul {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -124,7 +135,7 @@ li img {
 }
 
 li time {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 20px;
 }
 
@@ -138,13 +149,14 @@ li h3 {
 }
 
 li h4 {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 20px;
+  font-weight: 600;
 }
 
 li p {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 20px;
 }
 
@@ -153,7 +165,7 @@ li p strong {
 }
 
 li .spotify {
-  margin: 10px 0 0;
+  margin: 5px 0 0;
 }
 
 li .spotify a {

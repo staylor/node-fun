@@ -8,8 +8,12 @@ SearchView = Backbone.View.extend({
 	},
 
 	debouncedSearch: _.debounce( function () {
+		if ( ! this.el.value.trim() ) {
+			return;
+		}
+
 		this.collection.opts = {
-			artist: this.el.value
+			artist: this.el.value.trim()
 		};
 		this.collection.fetch({ reset: true });
 	}, 600 )

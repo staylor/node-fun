@@ -1,5 +1,4 @@
 var BandsInTown = require( '../providers/bands-in-town' ),
-	Songkick = require( '../providers/songkick' ),
 	ShowsController;
 
 /**
@@ -13,9 +12,6 @@ ShowsController = function ( req, res ) {
 	if ( req.query.artist ) {
 		api = new BandsInTown();
 		deferred = api.getArtistEvents( req.query.artist );
-	} else if ( req.query.metro ) {
-		api = new Songkick();
-		deferred = api.getMetroEvents( req.query.metro );
 	} else {
 		return res.json( {} );
 	}

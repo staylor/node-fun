@@ -1,11 +1,27 @@
-var Songkick = require( '../providers/songkick' ),
+var _ = require( 'underscore' ),
+	Songkick = require( '../providers/songkick' ),
 	SongkickModel = require( '../models/songkick' ),
 	SongickCollection = require( '../collections/songkick' );
 
 module.exports = function ( req, res ) {
-	var s = new Songkick();
+	var s = new Songkick(), metro, metroName, locations;
 
-	s.getMetroEvents( Songkick.NYC_METRO ).then( function ( shows ) {
+	if ( req.query.metro ) {
+		metro = req.query.metro;
+	} else {
+		metro = Songkick.METRO.NYC.id;
+	}
+
+	metroName = Songkick.Locations[ metro ];
+	locations = _.map( Songkick.Locations, function ( value, id ) {
+		return {
+			id: id,
+			name: value,
+			selected: id === metro
+		};
+	} );
+
+	s.getMetroEvents( metro ).then( function ( shows ) {
 		var SongkickShows,
 			parsed;
 
@@ -16,6 +32,8 @@ module.exports = function ( req, res ) {
 		SongkickShows = new SongickCollection( parsed );
 
 		res.locals = {
+			locations: locations,
+			metroName: metroName,
 			shows: SongkickShows.models
 		};
 		res.render( 'index', {

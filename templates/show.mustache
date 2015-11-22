@@ -9,7 +9,9 @@
 <time>{{ dateString }}</time>
 <h4>{{ artistNames }}</h4>
 <p>{{ venue.city }}, {{ venue.region }}</p>
+{{# spotifyUri }}
 <p class="spotify">
 	<strong>Spotify:</strong>
 	<a href="{{{ spotifyUri }}}">APP</a> <a href="{{{ spotifyUrl }}}">WEB</a>
 </p>
+{{/ spotifyUri }}

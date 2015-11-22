@@ -29,7 +29,34 @@ Songkick = function () {
 
 util.inherits( Songkick, ApiMixin );
 
-Songkick.NYC_METRO = 7644;
+Songkick.Locations = {};
+
+Songkick.METRO = {
+	NYC: {
+		id: 7644,
+		name: 'NYC'
+	},
+	SF: {
+		id: 26330,
+		name: 'SF'
+	},
+	LA: {
+		id: 17835,
+		name: 'LA'
+	},
+	CHICAGO: {
+		id: 9426,
+		name: 'Chicago'
+	},
+	PHILLY: {
+		id: 5202,
+		name: 'Philly'
+	}
+};
+
+_.each( Songkick.METRO, function ( value ) {
+	Songkick.Locations[ value.id ] = value.name;
+} );
 
 /**
  *
@@ -95,7 +122,6 @@ Songkick.prototype.parse = function ( response ) {
 	} );
 
 	return Q.allSettled( deferreds ).then( function () {
-		console.log( 'I MADE IT' );
 		return _.values( stack );
 	} );
 };

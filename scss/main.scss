@@ -33,6 +33,17 @@ input[type="text"] {
 	margin-bottom: 20px;
 }
 
+nav {
+	display: block;
+	margin: 10px 0 20px;
+
+	a, span {
+		text-decoration: none;
+		display: inline-block;
+		margin-right: 10px;
+	}
+}
+
 @import "show";
 
 

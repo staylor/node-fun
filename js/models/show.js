@@ -1,14 +1,11 @@
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
-	isoParse = require( '../lib/iso-8601-parse' ),
+	moment = require( 'moment' ),
 	Show;
 
 Show = Backbone.Model.extend({
-
 	dateString: function () {
-		var timestamp = isoParse( this.get( 'datetime' ) ), date;
-		date = new Date( timestamp );
-		return date.toLocaleString();
+		return moment( this.get( 'datetime' ), moment.ISO_8601 ).format( 'dddd, MMMM D, h:mma' );
 	},
 
 	artistNames: function () {
