@@ -15,6 +15,8 @@
     "hogan-express": "^0.5.2",
     "hogan.js": "^3.0.2",
     "jquery": "^2.1.4",
+    "moment": "^2.10.6",
+    "q": "^1.4.1",
     "redis": "^2.3.1",
     "request": "^2.66.0",
     "underscore": "^1.8.3"
@@ -35,8 +37,6 @@
     "gulp-util": "^3.0.6",
     "jshint": "^2.9.1-rc1",
     "jshint-stylish": "^2.0.1",
-    "moment": "^2.10.6",
-    "q": "^1.4.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }
