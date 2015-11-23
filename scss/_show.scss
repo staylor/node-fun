@@ -42,17 +42,20 @@ li {
 
 	h3 {
 		display: block;
-		font-size: 17px;
+		font-size: 18px;
 		line-height: 28px;
 		margin: 0 0 10px;
 		border-top: 1px solid #eee;
 		border-bottom: 1px solid #eee;
+		@include typekit();
 	}
 
 	h4 {
-		font-size: 16px;
-		line-height: 20px;
+		font-size: 18px;
+		line-height: 22px;
 		font-weight: 600;
+		font-family: $futura;
+		@include typekit();
 	}
 
 	p {

@@ -68,9 +68,15 @@ strong {
 h2 {
   display: block;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 28px;
   line-height: 36px;
   margin: 10px 0;
+  font-family: "futura-pt", "Helvetica Neue", sans-serif;
+  visibility: hidden;
+}
+
+.wf-active h2 {
+  visibility: visible;
 }
 
 input[type="text"] {
@@ -165,17 +171,30 @@ li time {
 
 li h3 {
   display: block;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 28px;
   margin: 0 0 10px;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
+  font-family: "futura-pt", "Helvetica Neue", sans-serif;
+  visibility: hidden;
+}
+
+.wf-active li h3 {
+  visibility: visible;
 }
 
 li h4 {
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 18px;
+  line-height: 22px;
   font-weight: 600;
+  font-family: "futura-pt", "Helvetica Neue", sans-serif;
+  font-family: "futura-pt", "Helvetica Neue", sans-serif;
+  visibility: hidden;
+}
+
+.wf-active li h4 {
+  visibility: visible;
 }
 
 li p {

@@ -6,7 +6,7 @@
 var util = require( 'util' ),
 	_ = require( 'underscore' ),
 	Q = require( 'q' ),
-	ApiMixin = require( './api-mixin' ),
+	ProviderBase = require( './provider-base' ),
 
 	// 7 days
 	expiration = 60 * 60 * 24 * 7,
@@ -19,10 +19,10 @@ Spotify = function () {
 		baseUrl: 'https://api.spotify.com/v1'
 	};
 
-	ApiMixin.call( this );
+	ProviderBase.call( this );
 };
 
-util.inherits( Spotify, ApiMixin );
+util.inherits( Spotify, ProviderBase );
 
 Spotify.prototype.parse = function ( resp ) {
 	var item = {}, trimmed;

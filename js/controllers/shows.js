@@ -8,13 +8,13 @@ var BandsInTown = require( '../providers/bands-in-town' ),
  * @returns {Promise}
  */
 ShowsController = function ( req, res ) {
-	var deferred, api, locationCookie;
+	var deferred, api;
 
 	if ( req.query.artist ) {
 		api = new BandsInTown();
 		deferred = api.getArtistEvents( req.query.artist );
 	} else if ( req.query.location ) {
-		
+
 		if ( ! req.cookies.hft_location ) {
 			res.cookie( 'hft_location', req.query.location );
 		}
@@ -27,6 +27,9 @@ ShowsController = function ( req, res ) {
 
 	return deferred.then( function ( data ) {
 		res.json( data );
+	}, function ( err ) {
+		console.error( err.stack );
+		res.status( 500 ).send( 'Something broke!' );
 	} );
 };
 

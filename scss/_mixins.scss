@@ -1,0 +1,8 @@
+@mixin typekit() {
+	font-family: $futura;
+	visibility: hidden;
+
+	.wf-active & {
+		visibility: visible;
+	}
+}

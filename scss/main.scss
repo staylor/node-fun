@@ -1,3 +1,7 @@
+@import "variables";
+@import "mixins";
+
+// Output
 @import "reset";
 
 body {
@@ -18,9 +22,10 @@ strong {
 h2 {
 	display: block;
 	font-weight: bold;
-	font-size: 24px;
+	font-size: 28px;
 	line-height: 36px;
 	margin: 10px 0;
+	@include typekit();
 }
 
 input[type="text"] {
