@@ -1,55 +1,104 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var $ = require( 'jquery' ),
 	Backbone = require( 'backbone' ),
-	BandsInTown = require( '../models/bands-in-town' ),
-	SearchView = require( '../views/search' ),
+	LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
-	BandsInTownCollection = require( '../collections/bands-in-town' ),
+	list,
 	ShowsCollection;
 
 Backbone.$ = $;
 
-ShowsCollection = new BandsInTownCollection({
-	model: BandsInTown
-});
+ShowsCollection = new LocationCollection({});
 
-new SearchView({
-	el: $('#search-field'),
-	collection: ShowsCollection
-});
-
-new ShowsView({
+list = new ShowsView({
 	el: $('#shows'),
 	collection: ShowsCollection
 });
 
-},{"../collections/bands-in-town":2,"../models/bands-in-town":3,"../views/search":6,"../views/shows":8,"backbone":9,"jquery":13}],2:[function(require,module,exports){
-var BandsInTown = require( '../models/bands-in-town' ),
-	Backbone = require( 'backbone' ),
-	BandsInTownCollection;
+if ( ! window.highforthis ) {
+	window.highforthis = {};
+}
 
-BandsInTownCollection = Backbone.Collection.extend({
-	model: BandsInTown,
+function hftGetCoords( position ) {
+	window.highforthis.coords = position.coords;
+	list.$el.html( '' );
+	ShowsCollection.fetch({ reset: true });
+}
 
-	comparator: function ( show ) {
-		return Date.parse( show.datetime );
+if ( navigator.geolocation ) {
+	list.$el.html( '<li>Getting your location...</li>' );
+	navigator.geolocation.getCurrentPosition( hftGetCoords );
+} else {
+	list.$el.html( '<li>Location is not available.</li>' );
+}
+
+
+},{"../collections/location":2,"../views/shows":8,"backbone":9,"jquery":13}],2:[function(require,module,exports){
+var SongkickCollection = require( './songkick' ),
+	LocationCollection;
+
+LocationCollection = SongkickCollection.extend({
+	getCoords: function () {
+		var coords = window.highforthis.coords;
+
+		return {
+			lat: coords.latitude,
+			lng: coords.longitude
+		};
 	},
 
 	url: function () {
-		return '/data/shows?artist=' + encodeURIComponent( this.opts.artist );
+		var coords = this.getCoords();
+		return '/data/shows?location=' + encodeURIComponent( coords.lat + ',' + coords.lng );
 	}
 });
 
-module.exports = BandsInTownCollection;
-},{"../models/bands-in-town":3,"backbone":9}],3:[function(require,module,exports){
-var BandsInTown,
-	Show = require( './show' );
+module.exports = LocationCollection;
+},{"./songkick":3}],3:[function(require,module,exports){
+var Songkick = require( '../models/songkick' ),
+	Backbone = require( 'backbone' ),
+	SongkickCollection;
 
-BandsInTown = Show.extend({});
+SongkickCollection = Backbone.Collection.extend({
+	model: Songkick,
+	comparator: function ( a, b ) {
+		var aPop = a.popularity(),
+			bPop = b.popularity();
 
-module.exports = BandsInTown;
+		// #2 exists
+		if ( bPop ) {
 
-},{"./show":4}],4:[function(require,module,exports){
+			// both exist
+			if ( aPop ) {
+				if ( aPop === bPop ) {
+					return 0;
+				} else if ( aPop > bPop ) {
+					return -1;
+				} else {
+					return 1;
+				}
+
+			// #1 exists
+			} else {
+				return 1;
+			}
+
+		} else if ( aPop ) {
+			return -1;
+		}
+
+		return 0;
+	},
+
+	url: function () {
+		// NYC
+		return '/data/shows?metro=7644';
+	}
+});
+
+module.exports = SongkickCollection;
+
+},{"../models/songkick":5,"backbone":9}],4:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	moment = require( 'moment' ),
@@ -111,6 +160,45 @@ Show = Backbone.Model.extend({
 module.exports = Show;
 
 },{"backbone":9,"moment":14,"underscore":15}],5:[function(require,module,exports){
+var Songkick,
+	_ = require( 'underscore' ),
+	Show = require( './show' );
+
+Songkick = Show.extend({
+	artistNames: function () {
+		return _.pluck( this.get( 'artists' ), 'displayName' ).shift();
+	},
+
+	parse: function ( data ) {
+		return Songkick.parseData( data );
+	}
+}, {
+	parseData: function ( data ) {
+		var response = {},
+			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
+
+		response.datetime = data.start.datetime || data.start.date;
+		response.artists = _.pluck( data.performance, 'artist' );
+
+		venueParts.pop();
+
+		response.venue = {
+			name: data.venue.displayName,
+			region: venueParts.pop(),
+			city: venueParts.join( ', ' )
+		};
+
+		if ( data.spotify ) {
+			response.spotify = data.spotify;
+		}
+
+		return response;
+	}
+} );
+
+module.exports = Songkick;
+
+},{"./show":4,"underscore":15}],6:[function(require,module,exports){
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
@@ -120,32 +208,7 @@ module.exports = (function() {
     templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);if(t.s(t.f("spotifyUri",c,p,1),c,p,0,311,376,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<p class=\"spotify\"><a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">Spotify</a></p>");t.b("\n" + i);});c.pop();}if(t.s(t.f("popularity",c,p,1),c,p,0,411,461,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span class=\"debug\">Pop: ");t.b(t.v(t.f("popularity",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
-},{"hogan.js":11}],6:[function(require,module,exports){
-var _ = require( 'underscore' ),
-	Backbone = require( 'backbone' ),
-	SearchView;
-
-SearchView = Backbone.View.extend({
-	events: {
-		'keyup' : 'debouncedSearch'
-	},
-
-	debouncedSearch: _.debounce( function () {
-		if ( ! this.el.value.trim() ) {
-			return;
-		}
-
-		this.collection.opts = {
-			artist: this.el.value.trim()
-		};
-		this.collection.fetch({ reset: true });
-	}, 600 )
-
-});
-
-module.exports = SearchView;
-
-},{"backbone":9,"underscore":15}],7:[function(require,module,exports){
+},{"hogan.js":11}],7:[function(require,module,exports){
 var Backbone = require( 'backbone' ),
 	templates = require( '../templates/compiled' ),
 	ShowView;
@@ -164,7 +227,7 @@ ShowView = Backbone.View.extend({
 
 module.exports = ShowView;
 
-},{"../templates/compiled":5,"backbone":9}],8:[function(require,module,exports){
+},{"../templates/compiled":6,"backbone":9}],8:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	ShowView = require( './show' ),

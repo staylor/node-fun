@@ -1,7 +1,5 @@
 //io09K9l3ebJxmxe2
 
-'use strict';
-
 var util = require( 'util' ),
 	Q = require( 'q' ),
 	_ = require( 'underscore' ),
@@ -123,6 +121,21 @@ Songkick.prototype.parse = function ( response ) {
 	return Q.allSettled( deferreds ).then( function () {
 		return _.values( stack );
 	} );
+};
+
+/**
+ *
+ * @param {string} coords
+ * @returns {Promise}
+ */
+Songkick.prototype.getLocationEvents = function ( coords ) {
+	this.requestUri = this.format(
+		'/events.json?location=geo:%s&apikey=%s',
+		coords,
+		apiKey
+	);
+
+	return this.getUriData();
 };
 
 /**

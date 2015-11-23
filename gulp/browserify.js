@@ -11,7 +11,8 @@ var gulp = require( 'gulp' ),
 
 function bundle() {
 	var deferreds, builds = [
-		'./js/app/everywhere.js'
+		'./js/app/everywhere.js',
+		'./js/app/location.js'
 	];
 
 	gutil.log( 'Browserifying files...' );

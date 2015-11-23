@@ -22,7 +22,7 @@ li {
 		float: left;
 		margin-right: 15px;
 		width: 120px;
-		min-height: 120px;
+		min-height: 90px;
 	}
 
 	.empty-link {
@@ -59,17 +59,16 @@ li {
 		margin: 0;
 		font-size: 12px;
 		line-height: 20px;
-
-		strong {
-			display: block;
-		}
 	}
 
 	.spotify {
-		margin: 5px 0 0;
 
 		a {
-			font-size: 13px;
+			font-size: 15px;
 		}
+	}
+
+	.debug {
+		display: none;
 	}
 }

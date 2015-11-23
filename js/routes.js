@@ -1,5 +1,6 @@
 var express = require( 'express' ),
 	ShowsController = require( './controllers/shows' ),
+	LocationController = require( './controllers/location' ),
 	SongkickController = require( './controllers/songkick' ),
 	router;
 
@@ -12,6 +13,8 @@ router.get( '/everywhere', function ( req, res ) {
 router.get( '/data/shows', ShowsController );
 
 router.get( '/metro/:metro_id', SongkickController );
+
+router.get( '/you', LocationController );
 
 router.get( '/', SongkickController );
 

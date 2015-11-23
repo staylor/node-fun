@@ -21,7 +21,6 @@ Show = Backbone.Model.extend({
 		if ( this.get( 'spotify' ) ) {
 			return this.get( 'spotify' ).popularity;
 		}
-		return this.get( 'popularity' );
 	},
 
 	spotifyUri: function () {

@@ -17,3 +17,7 @@ app.set( 'layout', 'layout' );
 app.engine( 'mustache', require( 'hogan-express' ) );
 
 app.use( '/', AppRouter );
+
+process.on( 'unhandledRejection', function ( reason, p ) {
+    console.log( 'Unhandled Rejection at: Promise ', p, ' reason: ', reason );
+} );

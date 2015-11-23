@@ -18,15 +18,28 @@ strong {
 h2 {
 	display: block;
 	font-weight: bold;
-	font-size: 20px;
+	font-size: 24px;
 	line-height: 36px;
+	margin: 10px 0;
 }
 
 input[type="text"] {
+	color: deeppink;
 	border: 1px solid #ddd;
-	padding: 10px;
-	font-size: 14px;
+	font-size: 16px;
 	line-height: 1;
+	outline: none;
+	padding: 10px;
+	margin: 5px 1px 3px 0px;
+	transition: all 0.30s ease-in-out;
+
+	&:focus {
+		outline: none !important;
+		box-shadow: 0 0 5px #ddd;
+		padding: 10px;
+		margin: 5px 1px 3px 0px;
+		border: 1px solid deeppink;
+	}
 }
 
 .everywhere-field {
@@ -35,15 +48,22 @@ input[type="text"] {
 
 nav {
 	display: block;
-	margin: 10px 0 20px;
+	margin: 0 0 10px;
 
 	a, span {
 		text-decoration: none;
 		display: inline-block;
-		margin-right: 10px;
+		margin-right: 5px;
+	}
+
+	&.cities {
+		margin: 10px 0 20px;
 	}
 }
 
+.sep {
+	font-weight: 100;
+	color: deeppink;
+}
+
 @import "show";
-
-

@@ -1,8 +1,12 @@
-<a href="/everywhere">Search Everywhere</a>
+<nav>
+	<a href="/everywhere">Search Everywhere</a>
+	<span class="sep">|</span>
+	<a href="/you">Your Location</a>
+</nav>
 
 <h2>Shows Today in {{ metroName }}</h2>
 
-<nav>{{# locations }}
+<nav class="cities">{{# locations }}
 {{# selected }}
 <span>{{ name }}</span>
 {{/ selected }}

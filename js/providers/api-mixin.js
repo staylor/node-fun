@@ -88,6 +88,7 @@ ApiMixin.prototype = {
 		var client = this.getClient();
 
 		return Q.Promise( function ( resolve, reject ) {
+			console.log( requestUri );
 			client( requestUri, function ( err, response, body ) {
 				var data = body;
 
