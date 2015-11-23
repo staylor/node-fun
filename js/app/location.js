@@ -1,11 +1,11 @@
-var $ = require( 'jquery' ),
-	Backbone = require( 'backbone' ),
-	LocationCollection = require( '../collections/location' ),
+var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
+	Cookies = require( '../lib/js-cookie' ),
 	list,
-	ShowsCollection;
+	ShowsCollection,
+	savedLocation, coords;
 
-Backbone.$ = $;
+savedLocation = Cookies.get( 'hft_location' );
 
 ShowsCollection = new LocationCollection({});
 
@@ -24,7 +24,15 @@ function hftGetCoords( position ) {
 	ShowsCollection.fetch({ reset: true });
 }
 
-if ( navigator.geolocation ) {
+if ( savedLocation ) {
+	coords = savedLocation.split( ',' );
+	hftGetCoords( {
+		coords: {
+			latitude: coords[0],
+			longitude: coords[1]
+		}
+	} );
+} else if ( navigator.geolocation ) {
 	list.$el.html( '<li>Getting your location...</li>' );
 	navigator.geolocation.getCurrentPosition( hftGetCoords );
 } else {

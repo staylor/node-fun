@@ -11,8 +11,7 @@ function compileTemplates() {
 	gutil.log( 'Compiling templates with Hogan...' );
 
 	gulp.src( [
-		'./templates/*.mustache',
-		'!./templates/layout.mustache'
+		'./templates/show.mustache'
 	] )
 		.pipe( hogan( 'compiled.js', {
 			wrapper: 'commonjs',

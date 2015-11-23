@@ -8,6 +8,7 @@ module.exports = function () {
 
 	gulp.src( [
 			'./js/**/*.js',
+			'!./js/lib/**/*.js',
 			'!./js/templates/**/*.js'
 		] )
 		.pipe( jshint() )

@@ -1,12 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var $ = require( 'jquery' ),
-	Backbone = require( 'backbone' ),
-	LocationCollection = require( '../collections/location' ),
+var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
+	Cookies = require( '../lib/js-cookie' ),
 	list,
-	ShowsCollection;
+	ShowsCollection,
+	savedLocation, coords;
 
-Backbone.$ = $;
+savedLocation = Cookies.get( 'hft_location' );
 
 ShowsCollection = new LocationCollection({});
 
@@ -25,7 +25,15 @@ function hftGetCoords( position ) {
 	ShowsCollection.fetch({ reset: true });
 }
 
-if ( navigator.geolocation ) {
+if ( savedLocation ) {
+	coords = savedLocation.split( ',' );
+	hftGetCoords( {
+		coords: {
+			latitude: coords[0],
+			longitude: coords[1]
+		}
+	} );
+} else if ( navigator.geolocation ) {
 	list.$el.html( '<li>Getting your location...</li>' );
 	navigator.geolocation.getCurrentPosition( hftGetCoords );
 } else {
@@ -33,7 +41,7 @@ if ( navigator.geolocation ) {
 }
 
 
-},{"../collections/location":2,"../views/shows":8,"backbone":9,"jquery":13}],2:[function(require,module,exports){
+},{"../collections/location":2,"../lib/js-cookie":4,"../views/shows":9}],2:[function(require,module,exports){
 var SongkickCollection = require( './songkick' ),
 	LocationCollection;
 
@@ -98,7 +106,153 @@ SongkickCollection = Backbone.Collection.extend({
 
 module.exports = SongkickCollection;
 
-},{"../models/songkick":5,"backbone":9}],4:[function(require,module,exports){
+},{"../models/songkick":6,"backbone":10}],4:[function(require,module,exports){
+/*!
+ * JavaScript Cookie v2.0.4
+ * https://github.com/js-cookie/js-cookie
+ *
+ * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
+ * Released under the MIT license
+ */
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(factory);
+	} else if (typeof exports === 'object') {
+		module.exports = factory();
+	} else {
+		var _OldCookies = window.Cookies;
+		var api = window.Cookies = factory();
+		api.noConflict = function () {
+			window.Cookies = _OldCookies;
+			return api;
+		};
+	}
+}(function () {
+	function extend () {
+		var i = 0;
+		var result = {};
+		for (; i < arguments.length; i++) {
+			var attributes = arguments[ i ];
+			for (var key in attributes) {
+				result[key] = attributes[key];
+			}
+		}
+		return result;
+	}
+
+	function init (converter) {
+		function api (key, value, attributes) {
+			var result;
+
+			// Write
+
+			if (arguments.length > 1) {
+				attributes = extend({
+					path: '/'
+				}, api.defaults, attributes);
+
+				if (typeof attributes.expires === 'number') {
+					var expires = new Date();
+					expires.setMilliseconds(expires.getMilliseconds() + attributes.expires * 864e+5);
+					attributes.expires = expires;
+				}
+
+				try {
+					result = JSON.stringify(value);
+					if (/^[\{\[]/.test(result)) {
+						value = result;
+					}
+				} catch (e) {}
+
+				if (!converter.write) {
+					value = encodeURIComponent(String(value))
+						.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+				} else {
+					value = converter.write(value, key);
+				}
+
+				key = encodeURIComponent(String(key));
+				key = key.replace(/%(23|24|26|2B|5E|60|7C)/g, decodeURIComponent);
+				key = key.replace(/[\(\)]/g, escape);
+
+				return (document.cookie = [
+					key, '=', value,
+					attributes.expires && '; expires=' + attributes.expires.toUTCString(), // use expires attribute, max-age is not supported by IE
+					attributes.path    && '; path=' + attributes.path,
+					attributes.domain  && '; domain=' + attributes.domain,
+					attributes.secure ? '; secure' : ''
+				].join(''));
+			}
+
+			// Read
+
+			if (!key) {
+				result = {};
+			}
+
+			// To prevent the for loop in the first place assign an empty array
+			// in case there are no cookies at all. Also prevents odd result when
+			// calling "get()"
+			var cookies = document.cookie ? document.cookie.split('; ') : [];
+			var rdecode = /(%[0-9A-Z]{2})+/g;
+			var i = 0;
+
+			for (; i < cookies.length; i++) {
+				var parts = cookies[i].split('=');
+				var name = parts[0].replace(rdecode, decodeURIComponent);
+				var cookie = parts.slice(1).join('=');
+
+				if (cookie.charAt(0) === '"') {
+					cookie = cookie.slice(1, -1);
+				}
+
+				try {
+					cookie = converter.read ?
+						converter.read(cookie, name) : converter(cookie, name) ||
+						cookie.replace(rdecode, decodeURIComponent);
+
+					if (this.json) {
+						try {
+							cookie = JSON.parse(cookie);
+						} catch (e) {}
+					}
+
+					if (key === name) {
+						result = cookie;
+						break;
+					}
+
+					if (!key) {
+						result[name] = cookie;
+					}
+				} catch (e) {}
+			}
+
+			return result;
+		}
+
+		api.get = api.set = api;
+		api.getJSON = function () {
+			return api.apply({
+				json: true
+			}, [].slice.call(arguments));
+		};
+		api.defaults = {};
+
+		api.remove = function (key, attributes) {
+			api(key, '', extend(attributes, {
+				expires: -1
+			}));
+		};
+
+		api.withConverter = init;
+
+		return api;
+	}
+
+	return init(function () {});
+}));
+},{}],5:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	moment = require( 'moment' ),
@@ -159,7 +313,7 @@ Show = Backbone.Model.extend({
 
 module.exports = Show;
 
-},{"backbone":9,"moment":14,"underscore":15}],5:[function(require,module,exports){
+},{"backbone":10,"moment":15,"underscore":16}],6:[function(require,module,exports){
 var Songkick,
 	_ = require( 'underscore' ),
 	Show = require( './show' );
@@ -198,17 +352,14 @@ Songkick = Show.extend({
 
 module.exports = Songkick;
 
-},{"./show":4,"underscore":15}],6:[function(require,module,exports){
+},{"./show":5,"underscore":16}],7:[function(require,module,exports){
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
-    templates['everywhere'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<nav>");t.b("\n" + i);t.b("	<a href=\"/\">Search Cities Tonight</a>");t.b("\n" + i);t.b("	<span class=\"sep\">|</span>");t.b("\n" + i);t.b("	<a href=\"/you\">Your Location</a>");t.b("\n" + i);t.b("</nav>");t.b("\n");t.b("\n" + i);t.b("<h2>Search Everywhere by Artist</h2>");t.b("\n");t.b("\n" + i);t.b("<p class=\"everywhere-field\">");t.b("\n" + i);t.b("	<input type=\"text\" id=\"search-field\"/>");t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,268,321,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/everywhere.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
-    templates['index'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<nav>");t.b("\n" + i);t.b("	<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n" + i);t.b("	<span class=\"sep\">|</span>");t.b("\n" + i);t.b("	<a href=\"/you\">Your Location</a>");t.b("\n" + i);t.b("</nav>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Today in ");t.b(t.v(t.f("metroName",c,p,0)));t.b("</h2>");t.b("\n");t.b("\n" + i);t.b("<nav class=\"cities\">");if(t.s(t.f("locations",c,p,1),c,p,0,198,328,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("\n" + i);if(t.s(t.f("selected",c,p,1),c,p,0,214,239,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span>");t.b(t.v(t.f("name",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("selected",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"/metro/");t.b(t.v(t.f("id",c,p,0)));t.b("\">");t.b(t.v(t.f("name",c,p,0)));t.b("</a>");t.b("\n" + i);};});c.pop();}t.b("</nav>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\">");t.b("\n" + i);if(t.s(t.f("shows",c,p,1),c,p,0,382,406,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	<li>");t.b(t.rp("<show0",c,p,""));t.b("</li>");t.b("\n" + i);});c.pop();}t.b("</ul>");t.b("\n");return t.fl(); },partials: {"<show0":{name:"show", partials: {}, subs: {  }}}, subs: {  }});
-    templates['location'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<nav>");t.b("\n" + i);t.b("	<a href=\"/\">Search Cities Tonight</a>");t.b("\n" + i);t.b("	<span class=\"sep\">|</span>");t.b("\n" + i);t.b("	<a href=\"/everywhere\">Search Everywhere</a>");t.b("\n" + i);t.b("</nav>");t.b("\n");t.b("\n" + i);t.b("<h2>Shows Near You</h2>");t.b("\n");t.b("\n" + i);t.b("<ul id=\"shows\"></ul>");t.b("\n");t.b("\n" + i);if(t.s(t.f("yield-scripts",c,p,1),c,p,0,191,242,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<script src=\"/build/js/location.min.js\"></script>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
     templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);if(t.s(t.f("spotifyUri",c,p,1),c,p,0,311,376,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<p class=\"spotify\"><a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">Spotify</a></p>");t.b("\n" + i);});c.pop();}if(t.s(t.f("popularity",c,p,1),c,p,0,411,461,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span class=\"debug\">Pop: ");t.b(t.v(t.f("popularity",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
-},{"hogan.js":11}],7:[function(require,module,exports){
+},{"hogan.js":12}],8:[function(require,module,exports){
 var Backbone = require( 'backbone' ),
 	templates = require( '../templates/compiled' ),
 	ShowView;
@@ -227,7 +378,7 @@ ShowView = Backbone.View.extend({
 
 module.exports = ShowView;
 
-},{"../templates/compiled":6,"backbone":9}],8:[function(require,module,exports){
+},{"../templates/compiled":7,"backbone":10}],9:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	ShowView = require( './show' ),
@@ -259,7 +410,7 @@ ShowsView = Backbone.View.extend({
 
 module.exports = ShowsView;
 
-},{"./show":7,"backbone":9,"underscore":15}],9:[function(require,module,exports){
+},{"./show":8,"backbone":10,"underscore":16}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2157,7 +2308,7 @@ module.exports = ShowsView;
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":13,"underscore":15}],10:[function(require,module,exports){
+},{"jquery":14,"underscore":16}],11:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2582,7 +2733,7 @@ module.exports = ShowsView;
   }
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2605,7 +2756,7 @@ Hogan.Template = require('./template').Template;
 Hogan.template = Hogan.Template;
 module.exports = Hogan;
 
-},{"./compiler":10,"./template":12}],12:[function(require,module,exports){
+},{"./compiler":11,"./template":13}],13:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2948,7 +3099,7 @@ var Hogan = {};
 
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -12160,7 +12311,7 @@ return jQuery;
 
 }));
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.6
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -15356,7 +15507,7 @@ return jQuery;
     return _moment;
 
 }));
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

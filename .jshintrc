@@ -14,8 +14,12 @@
 	"undef": true,
 
 	"globals": {
-		"JSON": true,
-		"module": true
+		"JSON": false,
+		"module": false,
+		"$": true,
+		"jQuery": false,
+		"_": true,
+		"Backbone": true
 	},
 
 	"browser": true,
