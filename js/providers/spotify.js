@@ -13,7 +13,7 @@ var util = require( 'util' ),
 	Spotify;
 
 Spotify = function () {
-	this.cacheGroup = 'spotify1';
+	this.cacheGroup = 'spotify2';
 	this.expiration = expiration;
 	this.config = {
 		baseUrl: 'https://api.spotify.com/v1'
