@@ -57,9 +57,15 @@ _.each( Songkick.METRO, function ( value ) {
 } );
 
 Songkick.prototype.getHeadliner = function ( resp ) {
-	return _.findWhere( resp.performance, {
+	var headliner =  _.findWhere( resp.performance, {
 		billing: 'headline'
 	} );
+
+	if ( headliner ) {
+		return headliner.displayName;
+	}
+
+	return '';
 };
 
 /**

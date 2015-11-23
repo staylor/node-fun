@@ -22,7 +22,7 @@ SpotifyMixin = {
 			}
 
 			stack[ id ] = resp;
-			artist = headliner.displayName.toLowerCase();
+			artist = headliner.toLowerCase();
 			if ( requested[ artist ] ) {
 				if ( waiting[ artist ] ) {
 					waiting[ artist ].push( id );

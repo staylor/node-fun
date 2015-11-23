@@ -25,7 +25,7 @@ BandsInTown = function () {
 util.inherits( BandsInTown, ProviderBase );
 
 BandsInTown.prototype.getHeadliner = function ( resp ) {
-	return resp.artists[0];
+	return resp.artists[0].name;
 };
 
 /**
