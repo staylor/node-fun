@@ -20,12 +20,20 @@ module.exports = function ( req, res ) {
 
 	s.getMetroEvents( metro ).then( function ( shows ) {
 		var SongkickShows,
+			filtered,
 			parsed;
 
-		parsed = shows.map( function ( show ) {
+		// filter the results here
+		filtered = shows.filter( function ( show ) {
+			return show.venue.displayName && 'Unknown venue' !== show.venue.displayName;
+		} );
+
+		// parse the results
+		parsed = filtered.map( function ( show ) {
 			return SongkickModel.parseData( show );
 		} );
 
+		// make collection, without making a network request
 		SongkickShows = new SongkickCollection( parsed );
 
 		res.locals = {

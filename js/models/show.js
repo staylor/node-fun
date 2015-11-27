@@ -5,8 +5,16 @@ var _ = require( 'underscore' ),
 
 Show = Backbone.Model.extend({
 	dateString: function () {
-		var dt = this.get( 'datetime' );
-		return moment( dt, moment.ISO_8601 ).utcOffset( dt ).format( 'dddd, MMMM D, h:mma' );
+		var dt = this.get( 'datetime' ),
+			formatted;
+
+		if ( dt.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) ) {
+			formatted = moment( dt, 'YYYY-MM-DD' ).format( 'dddd, MMMM D' );
+		} else {
+			formatted = moment( dt, moment.ISO_8601 ).utcOffset( dt ).format( 'dddd, MMMM D, h:mma' );
+		}
+
+		return formatted;
 	},
 
 	artistNames: function () {

@@ -1,6 +1,4 @@
-
 var util = require( 'util' ),
-	_ = require( 'underscore' ),
 	Q = require( 'q' ),
 	request = require( 'request' ),
 	redis = require( '../lib/redis' ),
@@ -46,7 +44,7 @@ ProviderBase.prototype.getUriData = function () {
 
 		if ( value && 'false' !== String( value ) ) {
 
-			if ( _.isString( value ) ) {
+			if ( 'string' === typeof value ) {
 				deferred.resolve( JSON.parse( value ) );
 			} else {
 				deferred.resolve( value );

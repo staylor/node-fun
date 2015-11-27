@@ -1,5 +1,4 @@
-var _ = require( 'underscore' ),
-	Q = require( 'q' ),
+var Q = require( 'q' ),
 	Spotify = require( './spotify' ),
 	SpotifyMixin;
 
@@ -47,8 +46,11 @@ SpotifyMixin = {
 				requested[ artist ] = resp;
 
 				deferred.resolve();
+
+				return resp;
+
 			}, function ( reason ) {
-				console.error( 'Rejecting: ', artist );
+				console.error( 'Rejecting:', artist, reason );
 				stack[ id ].spotify = {};
 				requested[ artist ] = {};
 				deferred.reject( reason );
@@ -58,17 +60,24 @@ SpotifyMixin = {
 		}, this );
 
 		return Q.allSettled( deferreds ).then( function () {
-			_.each( requested, function ( resp, artist ) {
-				if ( ! waiting[ artist ] ) {
-					return;
+			var id, response = [],
+				assignResponse = function ( artistId ) {
+					stack[ artistId ].spotify = requested[ id ];
+				};
+
+			for ( id in requested ) {
+				if ( ! waiting[ id ] ) {
+					continue;
 				}
 
-				waiting[ artist ].forEach( function ( artistId ) {
-					stack[ artistId ].spotify = resp;
-				} );
-			} );
+				waiting[ id ].forEach( assignResponse );
+			}
 
-			return _.values( stack );
+			for ( id in stack ) {
+				response.push( stack[ id ] );
+			}
+
+			return response;
 		} );
 	}
 };

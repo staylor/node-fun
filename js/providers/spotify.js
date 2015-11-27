@@ -4,8 +4,6 @@
 //fddc22b8fd85445db6477b5fe502ab90
 
 var util = require( 'util' ),
-	_ = require( 'underscore' ),
-	Q = require( 'q' ),
 	ProviderBase = require( './provider-base' ),
 
 	// 7 days
@@ -29,16 +27,22 @@ Spotify = function () {
 util.inherits( Spotify, ProviderBase );
 
 Spotify.prototype.parse = function ( resp ) {
-	var item = {}, trimmed;
+	var item = {}, trimmed, i, t;
 
 	if ( ! resp.artists || ! resp.artists.items.length ) {
 		return item;
 	}
 
 	trimmed = this.artist.toLowerCase().trim();
-	item = _.find( resp.artists.items, function ( item ) {
-		return item.name.toLowerCase().trim() === trimmed;
-	} );
+	for ( i = 0; i < resp.artists.items.length; i++ ) {
+		t = resp.artists.items[i].name.toLowerCase().trim();
+		if ( t !== trimmed ) {
+			continue;
+		}
+
+		item = resp.artists.items[i];
+		break;
+	}
 
 	if ( ! item ) {
 		return {};

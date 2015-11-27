@@ -1,7 +1,6 @@
 //io09K9l3ebJxmxe2
 
 var util = require( 'util' ),
-	Q = require( 'q' ),
 	_ = require( 'underscore' ),
 
 	ProviderBase = require( './provider-base' ),
@@ -17,7 +16,7 @@ var util = require( 'util' ),
  * @augments ProviderBase
  */
 Songkick = function () {
-	this.cacheGroup = 'songkick1';
+	this.cacheGroup = 'songkick2';
 	this.expiration = expiration;
 	this.config = {
 		baseUrl: 'http://api.songkick.com/api/3.0'
@@ -69,13 +68,19 @@ Songkick.prototype.getHeadliner = function ( resp ) {
 	return '';
 };
 
+Songkick.prototype.filter = function ( data ) {
+	return data.filter( function ( show ) {
+		return Date.parse( show.start.datetime || show.start.date ) > Date.now();
+	} );
+};
+
 /**
  *
  * @param {object} response
  * @returns {Promise}
  */
 Songkick.prototype.parse = function ( response ) {
-	var events;
+	var events, filtered;
 
 	if ( ! response.resultsPage || ! response.resultsPage.results ) {
 		console.error( 'No Response from Songkick.' );
@@ -84,7 +89,13 @@ Songkick.prototype.parse = function ( response ) {
 
 	events = response.resultsPage.results.event;
 
-	return this.getArtistData( events );
+	filtered = this.filter( events );
+
+	if ( ! filtered.length ) {
+		return {};
+	}
+
+	return this.getArtistData( filtered );
 };
 
 /**

@@ -20,17 +20,22 @@ strong {
 }
 
 h2 {
+	text-align: center;
 	display: block;
 	font-weight: bold;
-	font-size: 32px;
-	line-height: 36px;
+	font-size: 36px;
+	line-height: 42px;
 	margin: 10px 0;
 	@include typekit();
 }
 
 input[type="text"] {
+	appearance: none;
+	border-radius: 0;
+	width: 50%;
+
 	color: deeppink;
-	border: 1px solid #ddd;
+	border: 1px solid #ccc;
 	font-size: 16px;
 	line-height: 1;
 	outline: none;
@@ -38,28 +43,38 @@ input[type="text"] {
 	margin: 5px 1px 3px 0px;
 	transition: all 0.30s ease-in-out;
 
+	&::placeholder {
+		color: #ccc;
+	}
+
 	&:focus {
 		outline: none !important;
 		box-shadow: 0 0 5px #ddd;
 		padding: 10px;
 		margin: 5px 1px 3px 0px;
 		border: 1px solid deeppink;
+
+		&::placeholder {
+			color: deeppink;
+		}
 	}
 }
 
-.everywhere-field {
+form {
+	margin: 0 auto;
+	text-align: center;
 	margin-bottom: 20px;
 }
 
 nav {
 	display: block;
 	margin: 0 0 10px;
+	text-align: center;
 
 	@include clear();
 
 	a, span {
-		display: block;
-		float: left;
+		display: inline-block;
 		width: auto;
 		margin-right: 10px;
 		padding: 5px 10px;
@@ -72,6 +87,7 @@ nav {
 	a {
 		text-decoration: none;
 		border: 1px solid deeppink;
+		border-radius: 3px;
 
 		&:hover,
 		&:active {

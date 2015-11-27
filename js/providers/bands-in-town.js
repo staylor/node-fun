@@ -1,6 +1,5 @@
 var util = require( 'util' ),
 	_ = require( 'underscore' ),
-	Q = require( 'q' ),
 	ProviderBase = require( './provider-base' ),
 	SpotifyMixin = require( './spotify-mixin' ),
 
@@ -29,6 +28,12 @@ BandsInTown.prototype.getHeadliner = function ( resp ) {
 	return resp.artists[0].name;
 };
 
+BandsInTown.prototype.filter = function ( data ) {
+	return data.filter( function ( show ) {
+		return Date.parse( show.datetime ) > Date.now();
+	} );
+};
+
 /**
  * @param {object} response
  * @returns {Promise}
@@ -39,7 +44,12 @@ BandsInTown.prototype.parse = function ( response ) {
 		return {};
 	}
 
-	return this.getArtistData( response );
+	var filtered = this.filter( response );
+	if ( ! filtered.length ) {
+		return {};
+	}
+
+	return this.getArtistData( filtered );
 };
 
 /**

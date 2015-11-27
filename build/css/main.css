@@ -66,10 +66,11 @@ strong {
 }
 
 h2 {
+  text-align: center;
   display: block;
   font-weight: bold;
-  font-size: 32px;
-  line-height: 36px;
+  font-size: 36px;
+  line-height: 42px;
   margin: 10px 0;
   font-family: "futura-pt", "Helvetica Neue", sans-serif;
   visibility: hidden;
@@ -80,8 +81,14 @@ h2 {
 }
 
 input[type="text"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  width: 50%;
   color: deeppink;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   font-size: 16px;
   line-height: 1;
   outline: none;
@@ -89,6 +96,26 @@ input[type="text"] {
   margin: 5px 1px 3px 0px;
   -webkit-transition: all 0.30s ease-in-out;
   transition: all 0.30s ease-in-out;
+}
+
+input[type="text"]::-webkit-input-placeholder {
+  color: #ccc;
+}
+
+input[type="text"]:-moz-placeholder {
+  color: #ccc;
+}
+
+input[type="text"]::-moz-placeholder {
+  color: #ccc;
+}
+
+input[type="text"]:-ms-input-placeholder {
+  color: #ccc;
+}
+
+input[type="text"]::placeholder {
+  color: #ccc;
 }
 
 input[type="text"]:focus {
@@ -100,13 +127,36 @@ input[type="text"]:focus {
   border: 1px solid deeppink;
 }
 
-.everywhere-field {
+input[type="text"]:focus::-webkit-input-placeholder {
+  color: deeppink;
+}
+
+input[type="text"]:focus:-moz-placeholder {
+  color: deeppink;
+}
+
+input[type="text"]:focus::-moz-placeholder {
+  color: deeppink;
+}
+
+input[type="text"]:focus:-ms-input-placeholder {
+  color: deeppink;
+}
+
+input[type="text"]:focus::placeholder {
+  color: deeppink;
+}
+
+form {
+  margin: 0 auto;
+  text-align: center;
   margin-bottom: 20px;
 }
 
 nav {
   display: block;
   margin: 0 0 10px;
+  text-align: center;
 }
 
 nav:after {
@@ -118,8 +168,7 @@ nav:after {
 }
 
 nav a, nav span {
-  display: block;
-  float: left;
+  display: inline-block;
   width: auto;
   margin-right: 10px;
   padding: 5px 10px;
@@ -132,6 +181,8 @@ nav a:last-child, nav span:last-child {
 nav a {
   text-decoration: none;
   border: 1px solid deeppink;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
 
 nav a:hover, nav a:active {
