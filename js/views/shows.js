@@ -1,6 +1,4 @@
-var _ = require( 'underscore' ),
-	Backbone = require( 'backbone' ),
-	ShowView = require( './show' ),
+var ShowView = require( './show' ),
 	ShowsView;
 
 ShowsView = Backbone.View.extend({

@@ -21,15 +21,17 @@ SongkickCollection = Backbone.Collection.extend({
 					return 1;
 				}
 
-			// #1 exists
+			// only #2 exists
 			} else {
 				return 1;
 			}
 
+		// #1 exists
 		} else if ( aPop ) {
 			return -1;
 		}
 
+		// neither exist
 		return 0;
 	},
 

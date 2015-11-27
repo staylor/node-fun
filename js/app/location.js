@@ -1,28 +1,24 @@
 var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
 	Cookies = require( '../lib/js-cookie' ),
+	savedLocation = Cookies.get( 'hft_location' ),
+
 	list,
-	ShowsCollection,
-	savedLocation, coords;
+	showsCollection,
+	coords;
 
-savedLocation = Cookies.get( 'hft_location' );
+function hftGetCoords( position ) {
+	list.$el.html( '' );
+	showsCollection.opts.coords = position.coords;
+	showsCollection.fetch({ reset: true });
+}
 
-ShowsCollection = new LocationCollection({});
+showsCollection = new LocationCollection();
 
 list = new ShowsView({
 	el: $('#shows'),
-	collection: ShowsCollection
+	collection: showsCollection
 });
-
-if ( ! window.highforthis ) {
-	window.highforthis = {};
-}
-
-function hftGetCoords( position ) {
-	window.highforthis.coords = position.coords;
-	list.$el.html( '' );
-	ShowsCollection.fetch({ reset: true });
-}
 
 if ( savedLocation ) {
 	coords = savedLocation.split( ',' );

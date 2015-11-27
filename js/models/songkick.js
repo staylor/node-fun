@@ -11,6 +11,13 @@ Songkick = Show.extend({
 		return Songkick.parseData( data );
 	}
 }, {
+	/**
+	 * `parse` only gets called for network requests internally, use this
+	 * method statically to parse arbitrary data
+	 *
+	 * @param {Object} data
+	 * @returns {Object}
+	 */
 	parseData: function ( data ) {
 		var response = {},
 			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];

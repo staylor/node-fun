@@ -2,28 +2,24 @@
 var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
 	Cookies = require( '../lib/js-cookie' ),
+	savedLocation = Cookies.get( 'hft_location' ),
+
 	list,
-	ShowsCollection,
-	savedLocation, coords;
+	showsCollection,
+	coords;
 
-savedLocation = Cookies.get( 'hft_location' );
+function hftGetCoords( position ) {
+	list.$el.html( '' );
+	showsCollection.opts.coords = position.coords;
+	showsCollection.fetch({ reset: true });
+}
 
-ShowsCollection = new LocationCollection({});
+showsCollection = new LocationCollection();
 
 list = new ShowsView({
 	el: $('#shows'),
-	collection: ShowsCollection
+	collection: showsCollection
 });
-
-if ( ! window.highforthis ) {
-	window.highforthis = {};
-}
-
-function hftGetCoords( position ) {
-	window.highforthis.coords = position.coords;
-	list.$el.html( '' );
-	ShowsCollection.fetch({ reset: true });
-}
 
 if ( savedLocation ) {
 	coords = savedLocation.split( ',' );
@@ -46,18 +42,15 @@ var SongkickCollection = require( './songkick' ),
 	LocationCollection;
 
 LocationCollection = SongkickCollection.extend({
-	getCoords: function () {
-		var coords = window.highforthis.coords;
+	initialize: function () {
+		this.opts = {};
 
-		return {
-			lat: coords.latitude,
-			lng: coords.longitude
-		};
+		SongkickCollection.prototype.initialize.apply( this, arguments );
 	},
 
 	url: function () {
-		var coords = this.getCoords();
-		return '/data/shows?location=' + encodeURIComponent( coords.lat + ',' + coords.lng );
+		var coords = [ this.opts.coords.latitude, this.opts.coords.longitude ].join( ',' );
+		return '/data/shows?location=' + encodeURIComponent( coords );
 	}
 });
 
@@ -86,15 +79,17 @@ SongkickCollection = Backbone.Collection.extend({
 					return 1;
 				}
 
-			// #1 exists
+			// only #2 exists
 			} else {
 				return 1;
 			}
 
+		// #1 exists
 		} else if ( aPop ) {
 			return -1;
 		}
 
+		// neither exist
 		return 0;
 	},
 
@@ -327,6 +322,13 @@ Songkick = Show.extend({
 		return Songkick.parseData( data );
 	}
 }, {
+	/**
+	 * `parse` only gets called for network requests internally, use this
+	 * method statically to parse arbitrary data
+	 *
+	 * @param {Object} data
+	 * @returns {Object}
+	 */
 	parseData: function ( data ) {
 		var response = {},
 			venueParts = data.location.city ? data.location.city.split( ', ' ) : [];
@@ -360,14 +362,12 @@ module.exports = (function() {
     return templates;
 })();
 },{"hogan.js":12}],8:[function(require,module,exports){
-var Backbone = require( 'backbone' ),
-	templates = require( '../templates/compiled' ),
+var templates = require( '../templates/compiled' ),
 	ShowView;
 
 ShowView = Backbone.View.extend({
 	tagName: 'li',
 	render: function () {
-
 		var html = templates.show.render( this.model );
 
 		this.$el.html( html );
@@ -378,10 +378,8 @@ ShowView = Backbone.View.extend({
 
 module.exports = ShowView;
 
-},{"../templates/compiled":7,"backbone":10}],9:[function(require,module,exports){
-var _ = require( 'underscore' ),
-	Backbone = require( 'backbone' ),
-	ShowView = require( './show' ),
+},{"../templates/compiled":7}],9:[function(require,module,exports){
+var ShowView = require( './show' ),
 	ShowsView;
 
 ShowsView = Backbone.View.extend({
@@ -410,7 +408,7 @@ ShowsView = Backbone.View.extend({
 
 module.exports = ShowsView;
 
-},{"./show":8,"backbone":10,"underscore":16}],10:[function(require,module,exports){
+},{"./show":8}],10:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 

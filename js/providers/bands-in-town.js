@@ -11,6 +11,7 @@ var util = require( 'util' ),
 
 /**
  * @class
+ * @augments ProviderBase
  */
 BandsInTown = function () {
 	this.cacheGroup = 'bandsintown1';
@@ -34,8 +35,8 @@ BandsInTown.prototype.getHeadliner = function ( resp ) {
  */
 BandsInTown.prototype.parse = function ( response ) {
 	if ( ! response || response.errors ) {
-		console.log( 'Errors', response.errors );
-		return this.promise();
+		console.error( 'Errors', response.errors );
+		return {};
 	}
 
 	return this.getArtistData( response );

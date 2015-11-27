@@ -53,7 +53,7 @@ body {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  padding: 20px;
+  padding: 10px;
   font-family: sans-serif;
 }
 
@@ -68,7 +68,7 @@ strong {
 h2 {
   display: block;
   font-weight: bold;
-  font-size: 28px;
+  font-size: 32px;
   line-height: 36px;
   margin: 10px 0;
   font-family: "futura-pt", "Helvetica Neue", sans-serif;
@@ -109,19 +109,45 @@ nav {
   margin: 0 0 10px;
 }
 
+nav:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
 nav a, nav span {
+  display: block;
+  float: left;
+  width: auto;
+  margin-right: 10px;
+  padding: 5px 10px;
+}
+
+nav a:last-child, nav span:last-child {
+  margin-right: 0;
+}
+
+nav a {
   text-decoration: none;
-  display: inline-block;
-  margin-right: 5px;
+  border: 1px solid deeppink;
+}
+
+nav a:hover, nav a:active {
+  color: #fff;
+  background: rgba(255, 20, 147, 0.85);
+  background: deeppink;
+}
+
+nav span {
+  border: 1px solid transparent;
+  font-weight: bold;
+  padding: 5px;
 }
 
 nav.cities {
   margin: 10px 0 20px;
-}
-
-.sep {
-  font-weight: 100;
-  color: deeppink;
 }
 
 ul {
@@ -140,9 +166,11 @@ li {
 }
 
 li:after {
+  content: ".";
   display: block;
+  height: 0;
   clear: both;
-  content: ' ';
+  visibility: hidden;
 }
 
 li .empty-link,

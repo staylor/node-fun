@@ -3,6 +3,11 @@ var _ = require( 'underscore' ),
 	Spotify = require( './spotify' ),
 	SpotifyMixin;
 
+/**
+ * Clases that use this must implement {ProviderBase}.getHeadliner()
+ *
+ * @mixin
+ */
 SpotifyMixin = {
 	getArtistData: function ( items ) {
 		var deferreds = [],
@@ -43,7 +48,7 @@ SpotifyMixin = {
 
 				deferred.resolve();
 			}, function ( reason ) {
-				console.log( 'Rejecting: ', artist );
+				console.error( 'Rejecting: ', artist );
 				stack[ id ].spotify = {};
 				requested[ artist ] = {};
 				deferred.reject( reason );
@@ -54,11 +59,13 @@ SpotifyMixin = {
 
 		return Q.allSettled( deferreds ).then( function () {
 			_.each( requested, function ( resp, artist ) {
-				if ( waiting[ artist ] ) {
-					waiting[ artist ].forEach( function ( artistId ) {
-						stack[ artistId ].spotify = resp;
-					} );
+				if ( ! waiting[ artist ] ) {
+					return;
 				}
+
+				waiting[ artist ].forEach( function ( artistId ) {
+					stack[ artistId ].spotify = resp;
+				} );
 			} );
 
 			return _.values( stack );

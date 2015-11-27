@@ -14,6 +14,7 @@ var util = require( 'util' ),
 
 /**
  * @class
+ * @augments ProviderBase
  */
 Songkick = function () {
 	this.cacheGroup = 'songkick1';
@@ -77,7 +78,8 @@ Songkick.prototype.parse = function ( response ) {
 	var events;
 
 	if ( ! response.resultsPage || ! response.resultsPage.results ) {
-		return this.promise();
+		console.error( 'No Response from Songkick.' );
+		return {};
 	}
 
 	events = response.resultsPage.results.event;

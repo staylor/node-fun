@@ -114,11 +114,7 @@ module.exports = (function() {
     return templates;
 })();
 },{"hogan.js":11}],6:[function(require,module,exports){
-var _ = require( 'underscore' ),
-	Backbone = require( 'backbone' ),
-	SearchView;
-
-SearchView = Backbone.View.extend({
+var SearchView = Backbone.View.extend({
 	events: {
 		'keyup' : 'debouncedSearch'
 	},
@@ -138,15 +134,13 @@ SearchView = Backbone.View.extend({
 
 module.exports = SearchView;
 
-},{"backbone":9,"underscore":15}],7:[function(require,module,exports){
-var Backbone = require( 'backbone' ),
-	templates = require( '../templates/compiled' ),
+},{}],7:[function(require,module,exports){
+var templates = require( '../templates/compiled' ),
 	ShowView;
 
 ShowView = Backbone.View.extend({
 	tagName: 'li',
 	render: function () {
-
 		var html = templates.show.render( this.model );
 
 		this.$el.html( html );
@@ -157,10 +151,8 @@ ShowView = Backbone.View.extend({
 
 module.exports = ShowView;
 
-},{"../templates/compiled":5,"backbone":9}],8:[function(require,module,exports){
-var _ = require( 'underscore' ),
-	Backbone = require( 'backbone' ),
-	ShowView = require( './show' ),
+},{"../templates/compiled":5}],8:[function(require,module,exports){
+var ShowView = require( './show' ),
 	ShowsView;
 
 ShowsView = Backbone.View.extend({
@@ -189,7 +181,7 @@ ShowsView = Backbone.View.extend({
 
 module.exports = ShowsView;
 
-},{"./show":7,"backbone":9,"underscore":15}],9:[function(require,module,exports){
+},{"./show":7}],9:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 

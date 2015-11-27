@@ -2,18 +2,15 @@ var SongkickCollection = require( './songkick' ),
 	LocationCollection;
 
 LocationCollection = SongkickCollection.extend({
-	getCoords: function () {
-		var coords = window.highforthis.coords;
+	initialize: function () {
+		this.opts = {};
 
-		return {
-			lat: coords.latitude,
-			lng: coords.longitude
-		};
+		SongkickCollection.prototype.initialize.apply( this, arguments );
 	},
 
 	url: function () {
-		var coords = this.getCoords();
-		return '/data/shows?location=' + encodeURIComponent( coords.lat + ',' + coords.lng );
+		var coords = [ this.opts.coords.latitude, this.opts.coords.longitude ].join( ',' );
+		return '/data/shows?location=' + encodeURIComponent( coords );
 	}
 });
 

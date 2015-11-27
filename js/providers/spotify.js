@@ -12,6 +12,10 @@ var util = require( 'util' ),
 	expiration = 60 * 60 * 24 * 7,
 	Spotify;
 
+/**
+ * @class
+ * @augments ProviderBase
+ */
 Spotify = function () {
 	this.cacheGroup = 'spotify2';
 	this.expiration = expiration;
@@ -28,7 +32,7 @@ Spotify.prototype.parse = function ( resp ) {
 	var item = {}, trimmed;
 
 	if ( ! resp.artists || ! resp.artists.items.length ) {
-		return this.promise();
+		return item;
 	}
 
 	trimmed = this.artist.toLowerCase().trim();
@@ -37,12 +41,10 @@ Spotify.prototype.parse = function ( resp ) {
 	} );
 
 	if ( ! item ) {
-		return this.promise();
+		return {};
 	}
 
-	return Q.fcall( function () {
-		return item;
-	} );
+	return item;
 };
 
 Spotify.prototype.search = function ( artist ) {

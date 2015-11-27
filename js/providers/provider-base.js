@@ -12,12 +12,6 @@ ProviderBase = function () {
 	this.client = request.defaults( this.config || {} );
 };
 
-ProviderBase.prototype.promise = function () {
-	return Q.fcall( function () {
-		return {};
-	} );
-};
-
 ProviderBase.prototype.format = function ( s ) {
 	var args = Array.prototype.slice.call( arguments, 1 );
 
@@ -28,10 +22,6 @@ ProviderBase.prototype.format = function ( s ) {
 	args.unshift( s );
 
 	return util.format.apply( null, args );
-};
-
-ProviderBase.prototype.getClient = function () {
-	return this.client;
 };
 
 ProviderBase.prototype.getCacheKey = function () {
@@ -46,11 +36,10 @@ ProviderBase.prototype.setUriData = function ( data ) {
 };
 
 ProviderBase.prototype.getUriData = function () {
-	var self = this, deferred = Q.defer();
+	var deferred = Q.defer();
 
 	redis.get( this.getCacheKey(), function ( err, value ) {
 		if ( err ) {
-			console.log( err );
 			deferred.reject( err );
 			return;
 		}
@@ -62,37 +51,41 @@ ProviderBase.prototype.getUriData = function () {
 			} else {
 				deferred.resolve( value );
 			}
-
 			return;
 		}
 
-		this.getAsync( this.requestUri ).then( function ( response ) {
-			return self.parse( response ).then( function ( data ) {
-				self.setUriData( data );
+		this.getAsync( this.requestUri )
+			.then(
+				this.parse.bind( this ),
+				function ( reason ) {
+					deferred.reject( reason );
+				}
+			)
+			.then( function ( data ) {
+				this.setUriData( data );
 
-				return deferred.resolve( data );
+				deferred.resolve( data );
+
+				return data;
+			}.bind( this ), function ( reason ) {
+				deferred.reject( reason );
 			} );
-		}, function ( reason ) {
-			console.log( reason );
-			deferred.reject( reason );
-		} );
+
 	}.bind( this ) );
 
 	return deferred.promise;
 };
 
 ProviderBase.prototype.getAsync = function ( requestUri ) {
-	var client = this.getClient();
-
 	return Q.Promise( function ( resolve, reject ) {
 
-		client( requestUri, function ( err, response, body ) {
+		this.client( requestUri, function ( err, response, body ) {
 			var data = body;
-			
-			console.log( response.request.uri.href );
+
+			console.log( 'REQUEST:', response.request.uri.href );
 
 			if ( err || response.statusCode >= 400 ) {
-				console.log( 'Rejected...', err || response.body );
+				console.error( 'Rejected...', err || response.body );
 				reject( err );
 				return;
 			}
@@ -103,7 +96,7 @@ ProviderBase.prototype.getAsync = function ( requestUri ) {
 
 			resolve( data );
 		} );
-	} );
+	}.bind( this ) );
 };
 
 module.exports = ProviderBase;

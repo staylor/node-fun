@@ -10,11 +10,7 @@ li {
 	color: #333;
 	margin: 0 0 10px;
 
-	&:after {
-		display: block;
-		clear: both;
-		content: ' ';
-	}
+	@include clear();
 
 	.empty-link,
 	.image-link {

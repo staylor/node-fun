@@ -6,3 +6,17 @@
 		visibility: visible;
 	}
 }
+
+@mixin clear() {
+	&:after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+}
+
+@mixin deeppink($opacity: 1, $rule: background) {
+	#{$rule}: rgba(255, 20, 147, $opacity);
+}
