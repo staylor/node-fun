@@ -11,6 +11,7 @@ var gulp = require( 'gulp' ),
 
 function bundle() {
 	var deferreds, builds = [
+		'./js/app/cities.js',
 		'./js/app/everywhere.js',
 		'./js/app/location.js'
 	];

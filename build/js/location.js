@@ -1,8 +1,19 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// ensure that web apps work
+
+module.exports = function () {
+	$('.app-links a').click( function ( e ) {
+		e.preventDefault();
+
+		window.location.href = this.href;
+	} );
+};
+},{}],2:[function(require,module,exports){
 var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
 	Cookies = require( '../lib/js-cookie' ),
 	savedLocation = Cookies.get( 'hft_location' ),
+	appLinks = require( './app-links' ),
 
 	list,
 	showsCollection,
@@ -13,6 +24,8 @@ function hftGetCoords( position ) {
 	showsCollection.opts.coords = position.coords;
 	showsCollection.fetch({ reset: true });
 }
+
+appLinks();
 
 showsCollection = new LocationCollection();
 
@@ -37,7 +50,7 @@ if ( savedLocation ) {
 }
 
 
-},{"../collections/location":2,"../lib/js-cookie":4,"../views/shows":9}],2:[function(require,module,exports){
+},{"../collections/location":3,"../lib/js-cookie":5,"../views/shows":10,"./app-links":1}],3:[function(require,module,exports){
 var SongkickCollection = require( './songkick' ),
 	LocationCollection;
 
@@ -55,7 +68,7 @@ LocationCollection = SongkickCollection.extend({
 });
 
 module.exports = LocationCollection;
-},{"./songkick":3}],3:[function(require,module,exports){
+},{"./songkick":4}],4:[function(require,module,exports){
 var Songkick = require( '../models/songkick' ),
 	Backbone = require( 'backbone' ),
 	SongkickCollection;
@@ -101,7 +114,7 @@ SongkickCollection = Backbone.Collection.extend({
 
 module.exports = SongkickCollection;
 
-},{"../models/songkick":6,"backbone":10}],4:[function(require,module,exports){
+},{"../models/songkick":7,"backbone":11}],5:[function(require,module,exports){
 /*!
  * JavaScript Cookie v2.0.4
  * https://github.com/js-cookie/js-cookie
@@ -247,7 +260,7 @@ module.exports = SongkickCollection;
 
 	return init(function () {});
 }));
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var _ = require( 'underscore' ),
 	Backbone = require( 'backbone' ),
 	moment = require( 'moment' ),
@@ -308,7 +321,7 @@ Show = Backbone.Model.extend({
 
 module.exports = Show;
 
-},{"backbone":10,"moment":15,"underscore":16}],6:[function(require,module,exports){
+},{"backbone":11,"moment":16,"underscore":17}],7:[function(require,module,exports){
 var Songkick,
 	_ = require( 'underscore' ),
 	Show = require( './show' );
@@ -354,14 +367,14 @@ Songkick = Show.extend({
 
 module.exports = Songkick;
 
-},{"./show":5,"underscore":16}],7:[function(require,module,exports){
+},{"./show":6,"underscore":17}],8:[function(require,module,exports){
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
     templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);if(t.s(t.f("spotifyUri",c,p,1),c,p,0,311,376,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<p class=\"spotify\"><a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">Spotify</a></p>");t.b("\n" + i);});c.pop();}if(t.s(t.f("popularity",c,p,1),c,p,0,411,461,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span class=\"debug\">Pop: ");t.b(t.v(t.f("popularity",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
-},{"hogan.js":12}],8:[function(require,module,exports){
+},{"hogan.js":13}],9:[function(require,module,exports){
 var templates = require( '../templates/compiled' ),
 	ShowView;
 
@@ -378,7 +391,7 @@ ShowView = Backbone.View.extend({
 
 module.exports = ShowView;
 
-},{"../templates/compiled":7}],9:[function(require,module,exports){
+},{"../templates/compiled":8}],10:[function(require,module,exports){
 var ShowView = require( './show' ),
 	ShowsView;
 
@@ -408,7 +421,7 @@ ShowsView = Backbone.View.extend({
 
 module.exports = ShowsView;
 
-},{"./show":8}],10:[function(require,module,exports){
+},{"./show":9}],11:[function(require,module,exports){
 (function (global){
 //     Backbone.js 1.2.3
 
@@ -2306,7 +2319,7 @@ module.exports = ShowsView;
 }));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":14,"underscore":16}],11:[function(require,module,exports){
+},{"jquery":15,"underscore":17}],12:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2731,7 +2744,7 @@ module.exports = ShowsView;
   }
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -2754,7 +2767,7 @@ Hogan.Template = require('./template').Template;
 Hogan.template = Hogan.Template;
 module.exports = Hogan;
 
-},{"./compiler":11,"./template":13}],13:[function(require,module,exports){
+},{"./compiler":12,"./template":14}],14:[function(require,module,exports){
 /*
  *  Copyright 2011 Twitter, Inc.
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -3097,7 +3110,7 @@ var Hogan = {};
 
 })(typeof exports !== 'undefined' ? exports : Hogan);
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -12309,7 +12322,7 @@ return jQuery;
 
 }));
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.6
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -15505,7 +15518,7 @@ return jQuery;
     return _moment;
 
 }));
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -17055,4 +17068,4 @@ return jQuery;
   }
 }.call(this));
 
-},{}]},{},[1]);
+},{}]},{},[2]);

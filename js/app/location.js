@@ -2,6 +2,7 @@ var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
 	Cookies = require( '../lib/js-cookie' ),
 	savedLocation = Cookies.get( 'hft_location' ),
+	appLinks = require( './app-links' ),
 
 	list,
 	showsCollection,
@@ -12,6 +13,8 @@ function hftGetCoords( position ) {
 	showsCollection.opts.coords = position.coords;
 	showsCollection.fetch({ reset: true });
 }
+
+appLinks();
 
 showsCollection = new LocationCollection();
 

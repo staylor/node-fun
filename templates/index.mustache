@@ -1,11 +1,11 @@
-<nav>
+<nav class="app-links">
 	<a href="/everywhere">Search Everywhere</a>
 	<a href="/you">Your Location</a>
 </nav>
 
 <h2>Shows Today in {{ metroName }}</h2>
 
-<nav class="cities">{{# locations }}
+<nav class="cities app-links">{{# locations }}
 {{# selected }}
 <span>{{ name }}</span>
 {{/ selected }}
@@ -19,3 +19,8 @@
 	<li>{{> show }}</li>
 	{{/ shows  }}
 </ul>
+
+{{#yield-scripts}}
+<script src="/js/lib/jquery-2.1.4.min.js"></script>
+<script src="/build/js/cities.min.js"></script>
+{{/yield-scripts}}
