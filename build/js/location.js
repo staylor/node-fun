@@ -370,11 +370,11 @@ Songkick = Show.extend({
 
 		venueParts.pop();
 
-		response.venue = {
+		response.venue = _.defaults( {
 			name: data.venue.displayName,
 			region: venueParts.pop(),
 			city: venueParts.join( ', ' )
-		};
+		}, data.venue );
 
 		if ( data.spotify ) {
 			response.spotify = data.spotify;
