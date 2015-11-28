@@ -65,12 +65,27 @@ strong {
   font-weight: bold;
 }
 
+h1 {
+  text-align: center;
+  display: block;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 24px;
+  margin: 0 0 10px 0;
+  font-family: "futura-pt", "Helvetica Neue", sans-serif;
+  visibility: hidden;
+}
+
+.wf-active h1 {
+  visibility: visible;
+}
+
 h2 {
   text-align: center;
   display: block;
   font-weight: bold;
-  font-size: 36px;
-  line-height: 42px;
+  font-size: 40px;
+  line-height: 46px;
   margin: 10px 0;
   font-family: "futura-pt", "Helvetica Neue", sans-serif;
   visibility: hidden;
