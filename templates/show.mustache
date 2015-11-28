@@ -9,9 +9,12 @@
 <time>{{ dateString }}</time>
 <h4>{{ artistNames }}</h4>
 <p>{{ venue.city }}, {{ venue.region }}</p>
-{{# spotifyUri }}
-<p class="spotify"><a href="{{{ spotifyUri }}}">Spotify</a></p>
-{{/ spotifyUri }}
+
+<p class="links">
+	{{# spotifyUri }}<a href="{{{ spotifyUri }}}">Spotify</a>{{/ spotifyUri }}
+	{{# mapUri }}<a href="{{{ mapUri }}}">Map</a>{{/ mapUri }}
+</p>
+
 {{# popularity }}
 <span class="debug">Pop: {{ popularity }}</span>
 {{/ popularity }}

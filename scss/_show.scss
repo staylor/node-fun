@@ -60,10 +60,18 @@ li {
 		line-height: 20px;
 	}
 
-	.spotify {
+	.links {
+		margin-top: 10px;
+		@include clear();
 
 		a {
-			font-size: 15px;
+			margin-right: 5px;
+			padding: 3px 5px;
+			@include button();
+
+			&:last-child {
+				margin-right: 0;
+			}
 		}
 	}
 

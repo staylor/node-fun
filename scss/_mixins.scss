@@ -20,3 +20,18 @@
 @mixin deeppink($opacity: 1, $rule: background) {
 	#{$rule}: rgba(255, 20, 147, $opacity);
 }
+
+@mixin button() {
+	display: inline-block;
+	width: auto;
+	text-decoration: none;
+	border: 1px solid deeppink;
+	border-radius: 3px;
+
+	&:hover,
+	&:active {
+		color: #fff;
+		@include deeppink(0.85);
+		@include deeppink();
+	}
+}

@@ -3,6 +3,21 @@ var Songkick,
 	Show = require( './show' );
 
 Songkick = Show.extend({
+	mapUri: function () {
+		if ( this.get( 'venue' ).lat ) {
+			return;
+		}
+
+		var v = this.get( 'venue' );
+
+		return [
+			'comgooglemaps://?',
+			'center=' + v.lat + ',' + v.lng,
+			'&zoom=12',
+			'&q=' + encodeURIComponent( v.displayName )
+		].join( '' );
+	},
+
 	artistNames: function () {
 		return _.pluck( this.get( 'artists' ), 'displayName' ).shift();
 	},

@@ -55,6 +55,21 @@ var BandsInTown,
 	Show = require( './show' );
 
 BandsInTown = Show.extend({
+	mapUri: function () {
+		if ( ! this.get( 'venue' ).latitude ) {
+			return;
+		}
+
+		var v = this.get( 'venue' );
+
+		return [
+			'comgooglemaps://?',
+			'center=' + v.latitude + ',' + v.longitude,
+			'&zoom=12',
+			'&q=' + encodeURIComponent( v.name )
+		].join( '' );
+	},
+
 	parse: function ( data ) {
 		return BandsInTown.parseData( data );
 	}
@@ -62,7 +77,10 @@ BandsInTown = Show.extend({
 	parseData: function ( data ) {
 		var response = data;
 
-		if ( ! data.venue.region || data.venue.region.length < 4  ) {
+		if ( ! data.venue.region ||
+			data.venue.region.length < 4 ||
+			data.venue.region === data.venue.city
+		) {
 			response.venue.region = response.venue.country;
 		}
 
@@ -79,6 +97,10 @@ var _ = require( 'underscore' ),
 	Show;
 
 Show = Backbone.Model.extend({
+	initialize: function () {
+		this.related = this.get( 'spotify' ) || {};
+	},
+
 	dateString: function () {
 		var dt = this.get( 'datetime' ),
 			formatted;
@@ -101,27 +123,19 @@ Show = Backbone.Model.extend({
 	},
 
 	popularity: function () {
-		if ( this.get( 'spotify' ) ) {
-			return this.get( 'spotify' ).popularity;
-		}
+		return this.related.popularity;
 	},
 
 	spotifyUri: function () {
-		var related = this.get( 'spotify' );
-		if ( ! related ) {
-			return;
-		}
-
-		return related.uri;
+		return this.related.uri;
 	},
 
 	spotifyUrl: function () {
-		var related = this.get( 'spotify' );
-		if ( ! related || ! related.external_urls ) {
+		if ( ! this.related.external_urls ) {
 			return;
 		}
 
-		return related.external_urls.spotify;
+		return this.related.external_urls.spotify;
 	},
 
 	images: function () {
@@ -145,7 +159,7 @@ module.exports = Show;
 module.exports = (function() {
     var Hogan = require('hogan.js');
     var templates = {};
-    templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n" + i);if(t.s(t.f("spotifyUri",c,p,1),c,p,0,311,376,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<p class=\"spotify\"><a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">Spotify</a></p>");t.b("\n" + i);});c.pop();}if(t.s(t.f("popularity",c,p,1),c,p,0,411,461,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span class=\"debug\">Pop: ");t.b(t.v(t.f("popularity",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
+    templates['show'] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<h3>");t.b(t.v(t.d("venue.name",c,p,0)));t.b("</h3>");t.b("\n");t.b("\n" + i);if(t.s(t.f("images",c,p,1),c,p,0,40,107,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"image-link\"><img src=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\"/></a>");t.b("\n" + i);});c.pop();}if(!t.s(t.f("images",c,p,1),c,p,1,0,0,"")){t.b("<a href=\"");t.b(t.v(t.f("url",c,p,0)));t.b("\" class=\"empty-link\"></a>");t.b("\n" + i);};t.b("<time>");t.b(t.v(t.f("dateString",c,p,0)));t.b("</time>");t.b("\n" + i);t.b("<h4>");t.b(t.v(t.f("artistNames",c,p,0)));t.b("</h4>");t.b("\n" + i);t.b("<p>");t.b(t.v(t.d("venue.city",c,p,0)));t.b(", ");t.b(t.v(t.d("venue.region",c,p,0)));t.b("</p>");t.b("\n");t.b("\n" + i);t.b("<p class=\"links\">");t.b("\n" + i);t.b("	");if(t.s(t.f("spotifyUri",c,p,1),c,p,0,331,371,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.t(t.f("spotifyUri",c,p,0)));t.b("\">Spotify</a>");});c.pop();}t.b("\n" + i);t.b("	");if(t.s(t.f("mapUri",c,p,1),c,p,0,403,435,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"");t.b(t.t(t.f("mapUri",c,p,0)));t.b("\">Map</a>");});c.pop();}t.b("\n" + i);t.b("</p>");t.b("\n");t.b("\n" + i);if(t.s(t.f("popularity",c,p,1),c,p,0,472,522,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<span class=\"debug\">Pop: ");t.b(t.v(t.f("popularity",c,p,0)));t.b("</span>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }});
     return templates;
 })();
 },{"hogan.js":12}],7:[function(require,module,exports){

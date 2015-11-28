@@ -168,17 +168,22 @@ nav:after {
 }
 
 nav a, nav span {
-  display: inline-block;
-  width: auto;
   margin-right: 10px;
-  padding: 5px 10px;
 }
 
 nav a:last-child, nav span:last-child {
   margin-right: 0;
 }
 
+nav span {
+  display: inline-block;
+  width: auto;
+}
+
 nav a {
+  padding: 5px 10px;
+  display: inline-block;
+  width: auto;
   text-decoration: none;
   border: 1px solid deeppink;
   -webkit-border-radius: 3px;
@@ -282,8 +287,37 @@ li p {
   line-height: 20px;
 }
 
-li .spotify a {
-  font-size: 15px;
+li .links {
+  margin-top: 10px;
+}
+
+li .links:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+li .links a {
+  margin-right: 5px;
+  padding: 3px 5px;
+  display: inline-block;
+  width: auto;
+  text-decoration: none;
+  border: 1px solid deeppink;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+}
+
+li .links a:hover, li .links a:active {
+  color: #fff;
+  background: rgba(255, 20, 147, 0.85);
+  background: deeppink;
+}
+
+li .links a:last-child {
+  margin-right: 0;
 }
 
 li .debug {

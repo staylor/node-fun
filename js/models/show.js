@@ -4,6 +4,10 @@ var _ = require( 'underscore' ),
 	Show;
 
 Show = Backbone.Model.extend({
+	initialize: function () {
+		this.related = this.get( 'spotify' ) || {};
+	},
+
 	dateString: function () {
 		var dt = this.get( 'datetime' ),
 			formatted;
@@ -26,27 +30,19 @@ Show = Backbone.Model.extend({
 	},
 
 	popularity: function () {
-		if ( this.get( 'spotify' ) ) {
-			return this.get( 'spotify' ).popularity;
-		}
+		return this.related.popularity;
 	},
 
 	spotifyUri: function () {
-		var related = this.get( 'spotify' );
-		if ( ! related ) {
-			return;
-		}
-
-		return related.uri;
+		return this.related.uri;
 	},
 
 	spotifyUrl: function () {
-		var related = this.get( 'spotify' );
-		if ( ! related || ! related.external_urls ) {
+		if ( ! this.related.external_urls ) {
 			return;
 		}
 
-		return related.external_urls.spotify;
+		return this.related.external_urls.spotify;
 	},
 
 	images: function () {
