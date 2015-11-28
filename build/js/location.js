@@ -332,7 +332,7 @@ var Songkick,
 
 Songkick = Show.extend({
 	mapUri: function () {
-		if ( this.get( 'venue' ).lat ) {
+		if ( ! this.get( 'venue' ).lat ) {
 			return;
 		}
 
