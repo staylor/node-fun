@@ -221,6 +221,10 @@ nav.cities {
   margin: 10px 0 20px;
 }
 
+.location-shows {
+  margin-top: 30px;
+}
+
 ul {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
