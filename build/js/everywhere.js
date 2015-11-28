@@ -62,7 +62,7 @@ BandsInTown = Show.extend({
 	parseData: function ( data ) {
 		var response = data;
 
-		if ( ! data.venue.region ) {
+		if ( ! data.venue.region || data.venue.region.length < 4  ) {
 			response.venue.region = response.venue.country;
 		}
 
