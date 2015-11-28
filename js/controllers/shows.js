@@ -1,5 +1,9 @@
 var BandsInTown = require( '../providers/bands-in-town' ),
 	Songkick = require( '../providers/songkick' ),
+
+	// 15 minutes in milliseconds
+	cookieExpiration = 1000 * 60 * 15,
+
 	ShowsController;
 
 /**
@@ -16,7 +20,9 @@ ShowsController = function ( req, res ) {
 	} else if ( req.query.location ) {
 
 		if ( ! req.cookies.hft_location ) {
-			res.cookie( 'hft_location', req.query.location );
+			res.cookie( 'hft_location', req.query.location, {
+				maxAge: cookieExpiration
+			} );
 		}
 
 		api = new Songkick();

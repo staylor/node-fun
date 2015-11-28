@@ -3,20 +3,20 @@ var BandsInTown = require( '../models/bands-in-town' ),
 	ShowsView = require( '../views/shows' ),
 	BandsInTownCollection = require( '../collections/bands-in-town' ),
 	appLinks = require( './app-links' ),
-	ShowsCollection;
+	showsCollection;
 
 appLinks();
 
-ShowsCollection = new BandsInTownCollection({
+showsCollection = new BandsInTownCollection({
 	model: BandsInTown
 });
 
 new SearchView({
 	el: $('#search-field'),
-	collection: ShowsCollection
+	collection: showsCollection
 });
 
 new ShowsView({
 	el: $('#shows'),
-	collection: ShowsCollection
+	collection: showsCollection
 });

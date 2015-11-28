@@ -1,9 +1,9 @@
 var LocationCollection = require( '../collections/location' ),
 	ShowsView = require( '../views/shows' ),
 	Cookies = require( '../lib/js-cookie' ),
-	savedLocation = Cookies.get( 'hft_location' ),
 	appLinks = require( './app-links' ),
 
+	savedLocation,
 	list,
 	showsCollection,
 	coords;
@@ -22,6 +22,8 @@ list = new ShowsView({
 	el: $('#shows'),
 	collection: showsCollection
 });
+
+savedLocation = Cookies.get( 'hft_location' );
 
 if ( savedLocation ) {
 	coords = savedLocation.split( ',' );
