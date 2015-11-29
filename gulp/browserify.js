@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp = require( 'gulp' ),
 	browserify = require( 'browserify' ),
 	source = require( 'vinyl-source-stream' ),
@@ -6,37 +8,44 @@ var gulp = require( 'gulp' ),
 	uglify = require( 'gulp-uglify' ),
 	rename = require( 'gulp-rename' ),
 	Q = require( 'q' ),
+	es = require( 'event-stream' ),
 
-	DEST = './build/js';
-
-function bundle() {
-	var deferreds, builds = [
+	builds = [
 		'./js/app/cities.js',
 		'./js/app/everywhere.js',
 		'./js/app/location.js'
-	];
+	],
+	DEST = './build/js';
 
-	gutil.log( 'Browserifying files...' );
+function bundle( build ) {
+	var deferred = Q.defer(),
+		base = build.replace( './js/app/', '' );
 
-	deferreds = builds.map( function ( build ) {
-		var deferred = Q.defer();
-
-		browserify( build )
-			.bundle()
-			.pipe( source( build.replace( './js/app/', '' ) ) )
-			.pipe( buffer() )
-			.pipe( gulp.dest( DEST ) )
-			.pipe( uglify() )
-			.pipe( rename({ extname: '.min.js' }) )
-			.pipe( gulp.dest( DEST ) )
-			.on( 'end', function () {
+	browserify( build )
+		.bundle()
+		.pipe( source( base ) )
+		.pipe( buffer() )
+		.pipe( gulp.dest( DEST ) )
+		.pipe( uglify() )
+		.pipe( rename({ extname: '.min.js' }) )
+		.pipe( gulp.dest( DEST ) )
+		.pipe( es.wait( function ( err ) {
+			if ( err ) {
+				deferred.reject( err );
+			} else {
+				gutil.log( 'Bundled:', base );
 				deferred.resolve();
-			} );
+			}
+		} ) );
 
-		return deferred.promise;
-	}, this );
-
-	return Q.allSettled( deferreds );
+	return deferred.promise;
 }
 
-module.exports = bundle;
+module.exports = function () {
+	var promises = [];
+	builds.forEach( function ( build ) {
+		promises.push( bundle( build ) );
+	} );
+
+	return Q.allSettled( promises );
+};

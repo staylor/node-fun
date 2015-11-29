@@ -11,6 +11,8 @@ gulp.task( 'js-pipeline', require( './gulp/js' ) );
 // Hogan/Mustache templates
 gulp.task( 'template-pipeline', require( './gulp/templates' ) );
 
+gulp.task( 'release', require( './gulp/release' ) );
+
 gulp.task( 'default', function () {
 	watchers();
 	server();

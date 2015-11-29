@@ -1,6 +1,6 @@
 {
   "name": "node-fun",
-  "version": "1.0.0",
+  "version": "0.0.4",
   "description": "Fucking with Node",
   "author": "Scott Taylor",
   "license": "Beerware",
@@ -27,7 +27,11 @@
     "browserify": "^12.0.1",
     "css-mqpacker": "^4.0.0",
     "csswring": "^4.0.0",
+    "cz-conventional-changelog": "^1.1.4",
+    "event-stream": "^3.3.2",
     "gulp": "^3.9.0",
+    "gulp-bump": "^1.0.0",
+    "gulp-conventional-changelog": "^0.7.0",
     "gulp-hogan-compile": "^0.4.1",
     "gulp-jshint": "^2.0.0",
     "gulp-nodemon": "^2.0.3",
@@ -40,5 +44,10 @@
     "jshint-stylish": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

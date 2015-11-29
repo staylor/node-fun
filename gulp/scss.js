@@ -1,6 +1,10 @@
+'use strict';
+
 var gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
 	rename = require( 'gulp-rename' ),
+	Q = require( 'Q' ),
+	es = require( 'event-stream' ),
 
 	postcss = require('gulp-postcss'),
 	sass = require( 'gulp-sass' ),
@@ -24,11 +28,12 @@ var gulp = require( 'gulp' ),
 	];
 
 module.exports = function () {
-	var DEST = './build/css';
+	var deferred = Q.defer(),
+		DEST = './build/css';
 
 	gutil.log( 'Compiling SCSS templates ...' );
 
-	return gulp.src( [ './scss/**/*.scss' ] )
+	gulp.src( [ './scss/**/*.scss' ] )
 		.pipe(
 			sass({
 				outputStyle: 'expanded'
@@ -42,7 +47,13 @@ module.exports = function () {
 		.pipe( postcss( [ csswring ] ) )
 		.pipe( rename({ extname: '.min.css' }) )
 		.pipe( gulp.dest( DEST ) )
-		.on( 'end', function () {
-			gutil.log( 'Saved to /build.css' );
-		});
+		.pipe( es.wait( function ( err ) {
+			if ( err ) {
+				deferred.reject( err );
+			} else {
+				deferred.resolve();
+			}
+		} ) );
+
+	return deferred.promise;
 };
