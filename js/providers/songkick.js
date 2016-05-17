@@ -45,10 +45,6 @@ Songkick.METRO = {
 	CHICAGO: {
 		id: 9426,
 		name: 'Chicago'
-	},
-	PHILLY: {
-		id: 5202,
-		name: 'Philly'
 	}
 };
 
