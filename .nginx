@@ -1,9 +1,21 @@
 server {
-	listen 80;
-	server_name scotttaylor.nyc www.scotttaylor.nyc;
+	listen       80;
+	server_name  scotttaylor.nyc *.scotttaylor.nyc;
 	root         /var/www/scotttaylor.nyc/public_html;
 	access_log   /var/www/scotttaylor.nyc/logs/access.log;
 	error_log    /var/www/scotttaylor.nyc/logs/error.log;
+	location / {
+		rewrite ^ https://scotttaylor.nyc$request_uri permanent;
+	}
+}
+
+server {
+	listen 443;
+	ssl on;
+	server_name  scotttaylor.nyc *.scotttaylor.nyc;
+	root         /var/www/scotttaylor.nyc/public_html;
+	access_log   /var/www/scotttaylor.nyc/logs/ssl.access.log;
+	error_log    /var/www/scotttaylor.nyc/logs/ssl.error.log;
 
 	location / {
 		try_files $uri @proxy;
